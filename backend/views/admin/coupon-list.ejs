@@ -1,0 +1,73 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-xxl">
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="d-flex card-header justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title">Coupon List</h4>
+            </div>
+          </div>
+          <div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0 table-hover table-centered">
+                <thead class="bg-light-subtle">
+                  <tr>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Code</th>
+                    <th>Discount</th>
+                    <th>Max Discount</th>
+                    <th>Min Purchase</th>
+                    <th>Max Usage</th>
+                    <th>Used</th>
+                    <!-- <th>Categories</th> -->
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% coupons.forEach((coupon) => { %>
+                  <tr>
+                    <td><%- new Date(coupon.startDate).toDateString() %></td>
+                    <td><%- new Date(coupon.endDate).toDateString() %></td>
+                    <td><%- coupon.couponCode %></td>
+                    <td><%- coupon.discountType === 'fixed' ? `$${coupon.discount?.toFixed(2)}` : coupon.discountType === 'percentage' ? `${coupon.discount}%` : '' %></td>
+                    <td><% if(coupon.maxDiscount !== undefined) { %>$<%- coupon.maxDiscount?.toFixed(2) %><% } %></td>
+                    <td><% if(coupon.minPurchase !== undefined) { %>$<%- coupon.minPurchase?.toFixed(2) %><% } %></td>
+                    <td><% if(coupon.maxUsage !== undefined) { %><%- coupon.maxUsage %><% } %></td>
+                    <td><%- coupon.used %></td>
+                    <td>
+                      <form action="/api/coupon/delete" method="post">
+                      <input type="hidden" name="id" value="<%= coupon._id %>">
+                      <button type="submit" class="btn btn-soft-danger btn-sm">
+                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                      </button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <!-- end table-responsive -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- End Container Fluid -->
+
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+
+<%- include('./partials/footer') %>

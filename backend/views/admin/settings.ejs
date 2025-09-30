@@ -1,0 +1,93 @@
+<%- include('./partials/header') %>
+     <!-- ==================================================== -->
+     <!-- Start right Content here -->
+     <!-- ==================================================== -->
+     <div class="page-content">
+          <form action="/api/settings/edit" method="post">
+               <!-- Start Container Fluid -->
+               <div class="container-xxl">
+
+                    <div class="row">
+                         <div class="col-lg-12">
+                              <div class="card">
+                                   <div class="card-header">
+                                        <h4 class="card-title d-flex align-items-center gap-1"><iconify-icon
+                                                  icon="solar:settings-bold-duotone"
+                                                  class="text-primary fs-20"></iconify-icon>General Settings</h4>
+                                   </div>
+                                   <div class="card-body">
+                                        <div class="row g-4">
+                                             <div class="col-lg-5 col-12">
+                                                  <label class="dropzone w-100" id="favicon-image">
+                                                       <div class="fallback d-none">
+                                                            <input class="hidden-inp" type="hidden" name="favicon" value="<%- setting?.favicon %>">
+                                                            <input name="image" type="file" id="favicon-image"
+                                                                 accept="image/png, image/jpeg">
+                                                       </div>
+                                                       <div class="dz-message needsclick">
+                                                            <i class="h1 bx bx-cloud-upload"></i>
+                                                            <h3>Drop files here or click to favicon upload.</h3>
+                                                       </div>
+                                                  </label>
+                                             </div>
+                                             <div class="col-lg-7 col-12">
+                                                  <label class="dropzone w-100" id="logo-image">
+                                                       <div class="fallback d-none">
+                                                            <input class="hidden-inp" type="hidden" name="logo" value="<%- setting?.logo %>">
+                                                            <input name="image" type="file" id="logo-image"
+                                                                 accept="image/png, image/jpeg">
+                                                       </div>
+                                                       <div class="dz-message needsclick">
+                                                            <i class="h1 bx bx-cloud-upload"></i>
+                                                            <h3>Drop files here or click to upload Logo.</h3>
+                                                       </div>
+                                                  </label>
+                                             </div>
+                                             <div class="col-lg-4">
+                                                  <div>
+                                                       <label for="meta-name" class="form-label">Meta Title</label>
+                                                       <input type="text" id="meta-name" class="form-control"
+                                                            placeholder="Title" name="title" value="<%- setting?.title %>">
+                                                  </div>
+                                             </div>
+                                             <div class="col-lg-4">
+                                                  <div>
+                                                       <label for="meta-tag" class="form-label">Meta Tag Keyword - seperated by (,)</label>
+                                                       <input name="metaTags" type="text" id="meta-tag" class="form-control"
+                                                            placeholder="Enter word" value="<%- setting?.metaTags %>">
+                                                  </div>
+                                             </div>
+                                             <div class="col-lg-4">
+                                                  <div>
+                                                       <label for="theme-color" class="form-label">Theme Color</label>
+                                                       <input name="themeColor" type="color" id="theme-color" class="form-control"
+                                                            placeholder="Enter word" value="<%- setting?.themeColor %>">
+                                                  </div>
+                                             </div>
+                                             <div class="col-lg-12">
+                                                  <div class="">
+                                                       <label for="description" class="form-label">Description</label>
+                                                       <textarea name="metaDescription" class="form-control bg-light-subtle" id="description"
+                                                            rows="4" placeholder="Type description"><%- setting?.metaDescription %></textarea>
+                                                  </div>
+                                             </div>
+
+                                        </div>
+                                   </div>
+                              </div>
+
+                         </div>
+                    </div>
+
+                    <div class="text-end">
+                         <button type="submit" class="btn btn-success">Save Change</button>
+                    </div>
+               </div>
+               <!-- End Container Fluid -->
+          </form>
+
+     </div>
+     <!-- ==================================================== -->
+     <!-- End Page Content -->
+     <!-- ==================================================== -->
+     <%- include('./partials/footer') %>

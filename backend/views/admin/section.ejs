@@ -1,0 +1,144 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-xxl">
+
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
+          <div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0 table-hover table-centered">
+                <thead class="bg-light-subtle">
+                  <tr>
+                    <th>Section</th>
+                    <th>Title</th>
+                    <th>Images</th>
+                    <th>Videos</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% sections.forEach((item)=> { %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <p class="text-dark fw-medium fs-15 mb-0"><%- item.sectionOf %></p>
+                      </div>
+
+                    </td>
+                    <td><%- item.title %></td>
+                    <td>
+                         <ul class="table-images">
+                              <% item.images.forEach((img) => { %>
+                                   <li><img src="<%- img %>" /></li>
+                              <% }) %>
+                         </ul>
+                    </td>
+                    <td>
+                         <ul class="table-images">
+                              <% item.videos.forEach((video) => { %>
+                                   <li>
+                                        <video autoplay muted loop>
+                                             <source src="<%- video %>" type="video/mp4">
+                                        </video>
+                                   </li>
+                              <% }) %>
+                         </ul>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-2">
+                        <a class="btn btn-soft-primary btn-sm" href="/admin/cms/section/<%- item.sectionOf %>">
+                          <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <!-- end table-responsive -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- End Container Fluid -->
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+
+<%- include('./partials/footer') %>
+<script>
+  const fetchSection = async (id) => {
+    // const response = await fetch(`/api/section/fetch/${id}`, {
+    //      method: 'POST',
+    //      headers: {
+    //           "Content-Type": "application/json",
+    //      },
+    // })
+    // const { data } = await response.json()
+    // console.log(data)
+    // const { _id, title } = data
+    const bannerModal = new bootstrap.Modal(document.getElementById('editSection'));
+    // bannerModal._element.querySelector(`input[name='title']`).value = title
+    // bannerModal._element.querySelector(`input[name='id']`).value = _id
+    bannerModal.show();
+  }
+</script>
+<script>
+  var quill = new Quill('#snow-editor', {
+    theme: 'snow',
+    modules: {
+      'toolbar': [
+        [{
+          'size': []
+        }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{
+            'color': []
+          },
+          {
+            'background': []
+          }
+        ],
+        [{
+            'script': 'super'
+          },
+          {
+            'script': 'sub'
+          }
+        ],
+        [{
+            'header': [false, 1, 2, 3, 4, 5, 6]
+          },
+          'blockquote', 'code-block'
+        ],
+        [{
+            'list': 'ordered'
+          },
+          {
+            'list': 'bullet'
+          },
+          {
+            'indent': '-1'
+          }, {
+            'indent': '+1'
+          }
+        ],
+        ['direction', {
+          'align': []
+        }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ]
+    },
+  });
+</script>

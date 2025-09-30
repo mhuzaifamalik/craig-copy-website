@@ -1,0 +1,126 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-xxl">
+
+    <form action="/api/coupon/add" method="post">
+      <div class="row">
+        <div class="col-lg-5">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Date Schedule</h4>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="start-date" class="form-label text-dark">Start Date</label>
+                <input type="text" id="start-date" class="form-control flatpickr-input active" name="startDate" placeholder="dd-mm-yyyy" required>
+              </div>
+              <div class="mb-3">
+                <label for="end-date" class="form-label text-dark">End Date</label>
+                <input type="text" id="end-date" class="form-control flatpickr-input active" name="endDate" placeholder="dd-mm-yyyy" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Coupon Information</h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="mb-3">
+                    <label for="coupons-code" class="form-label">Coupons Code</label>
+                    <input type="text" id="coupons-code" name="couponCode" class="form-control" placeholder="Code enter" required>
+                  </div>
+                </div>
+                <!-- <div class="col-lg-6">
+                  <label for="product-categories" class="form-label">Discount Categories</label>
+                  <select class="form-control" name="categories" id="product-categories" data-choices data-choices-groups data-placeholder="Select Categories" name="choices-single-groups" multiple>
+                    <option value="">Choose a categories</option>
+                    <% categories.forEach((category) => { %>
+                    <option value="<%= category._id %>"><%= category.title %></option>
+                    <% }) %>
+                  </select>
+                </div> -->
+                <div class="col-lg-6">
+                  <div class="mb-3">
+                    <label for="coupons-minPurchase" class="form-label">Min Purchase</label>
+                    <input type="number" id="coupons-minPurchase" name="minPurchase" class="form-control" placeholder="eg. 100" min="1">
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="mb-3">
+                    <label for="coupons-limits" class="form-label">Max Usuage</label>
+                    <input type="number" id="coupons-limits" name="maxUsage" class="form-control" placeholder="eg. 100" min="1">
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="mb-3">
+                    <label for="coupons-maxDiscount" class="form-label">Max Discount</label>
+                    <input type="number" id="coupons-maxDiscount" name="maxDiscount" class="form-control" placeholder="eg. 100" min="1">
+                  </div>
+                </div>
+              </div>
+              <h4 class="card-title mb-3 mt-2">Coupons Types</h4>
+              <div class="row mb-3">
+                <div class="col-lg-4">
+                  <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="discountType" required id="flexRadioDefault12" value="freeShipping">
+                      <label class="form-check-label" for="flexRadioDefault12">
+                        Free Shipping
+                      </label>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="discountType" required id="flexRadioDefault13" value="percentage" checked>
+                    <label class="form-check-label" for="flexRadioDefault13">
+                      Percentage
+                    </label>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="discountType" required id="flexRadioDefault14" value="fixed">
+                    <label class="form-check-label" for="flexRadioDefault14">
+                      Fixed Amount
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="">
+                    <label for="discount-value" class="form-label">Discount Value</label>
+                    <input type="number" id="discount-value" name="discount" class="form-control" placeholder="value enter">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer border-top">
+              <button type="submit" class="btn btn-primary">Create Coupon</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <!-- End Container Fluid -->
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+
+<%- include('./partials/footer') %>
+<script src="/admin/assets/js/pages/coupons-add.js"></script>

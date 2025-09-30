@@ -1,0 +1,361 @@
+<%- include('./partials/header') %>
+
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div>
+
+  <div class="page-content">
+
+    <!-- Start Container -->
+    <div class="container-xxl">
+
+      <div class="row">
+        <div class="col-xl-9 col-lg-8">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div>
+                      <h4 class="fw-medium text-dark d-flex align-items-center gap-2"><%- order.orderId %>
+                        <!-- <span class="badge bg-success-subtle text-success  px-2 py-1 fs-13">Paid</span> -->
+                        <span style="text-transform: capitalize;" class="border border-warning text-warning fs-13 px-2 py-1 rounded"><%- order.status %></span>
+                      </h4>
+                      <p class="mb-0"><%- new Date(order.createdAt).toDateString() %></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <form action="/api/order/update" method="POST">
+                        <input type="hidden" name="orderId" value="<%- order.orderId %>">
+                        <input type="hidden" name="status" value="cancelled">
+                        <button type="submit" class="btn btn-outline-secondary">Cancelled</button>
+                      </form>
+                      <form action="/api/order/update" method="POST">
+                        <input type="hidden" name="orderId" value="<%- order.orderId %>">
+                        <input type="hidden" name="status" value="refunded">
+                        <button type="submit" class="btn btn-outline-danger">Refund</button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- <div class="mt-4">
+                    <h4 class="fw-medium text-dark">Progress</h4>
+                  </div>
+                  <div class="row row-cols-xxl-5 row-cols-md-2 row-cols-1">
+                    <div class="col">
+                      <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
+                        </div>
+                      </div>
+                      <p class="mb-0 mt-2">Order Confirming</p>
+                    </div>
+                    <div class="col">
+                      <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
+                        </div>
+                      </div>
+                      <p class="mb-0 mt-2">Payment Pending</p>
+                    </div>
+                    <div class="col">
+                      <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 60%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2 mt-2">
+                        <p class="mb-0">Processing</p>
+                        <div class="spinner-border spinner-border-sm text-warning" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
+                        </div>
+                      </div>
+                      <p class="mb-0 mt-2">Shipping</p>
+                    </div>
+                    <div class="col">
+                      <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
+                        </div>
+                      </div>
+                      <p class="mb-0 mt-2">Delivered</p>
+                    </div>
+                  </div>
+                </div> -->
+                  <div class="card-footer bg-light-subtle gap-2">
+                    <form action="/api/order/update" method="post">
+                      <input type="hidden" name="orderId" value="<%- order.orderId %>">
+                      <input type="hidden" name="status" value="completed">
+                      <button type="submit" class="btn btn-primary">Make As Completed</button>
+                    </form>
+                    <% if(order.paymentinfo) { %>
+                      <hr>
+                      <div>
+                        <h4 class="fw-medium text-dark">Payment Information</h4>
+                        <p class="mb-0">
+                          <strong>Payment Id:</strong>
+                          <button class="btn btn-link" title="Copy Payment ID" type="button" onclick="((btn) => {
+                            navigator.clipboard.writeText('<%- order.paymentinfo?.paymentId %>')
+                            btn.innerHTML = 'Payment ID Copied!';
+                            setTimeout(() => {
+                              btn.innerHTML = '<%- order.paymentinfo?.paymentId %>';
+                            }, 2000);
+                          })(this)">
+                            <%- order.paymentinfo?.paymentId %>
+                          </button>
+                        </p>
+                        <p class="mb-0"><strong>Payment Status:</strong> <%- order.paymentinfo?.status %></p>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <% if(order.products.length) { %>
+                <div class="card">
+                  <div class="card-header">
+                    <h4 class="card-title">Product</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle border-bottom">
+                          <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% order.products.forEach(item => { %>
+                          <% product = item.product %>
+                          <tr>
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                  <img src="<%- product.image %>" alt="<%- product.title %>" class="avatar-md">
+                                </div>
+                                <div>
+                                  <span class="text-dark fw-medium fs-15"><%- product.title %></span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>$<%- product.price %></td>
+                            <td><%- item.quantity %></td>
+                            <td> $<%- item.quantity * product.price %></td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <% } %>
+                <% if(order.creation.length) { %>
+                <div class="card">
+                  <div class="card-header">
+                    <h4 class="card-title">Creation</h4>
+                  </div>
+                  <div class="card-body">
+                    <% order.creation.forEach((item, index) => { %>
+                    <div class="creation-item">
+                      <div class="row image-group g-4">
+                        <% item.items.forEach(({letter,imageIndex}, index) => { %>
+                        <div class="col-3">
+                          <img class="img-fluid" src="<%- letter.images[imageIndex] %>" alt="">
+                          <%- letter.images[imageIndex].split('/').pop() %>
+                        </div>
+                        <% }) %>
+                      </div>
+                    </div>
+                    <% }) %>
+                  </div>
+                </div>
+                <% } %>
+              </div>
+              <!-- <div class="card bg-light-subtle">
+                <div class="card-body">
+                  <div class="row g-3 g-lg-0">
+                    <div class="col-lg-3 border-end">
+                      <div class="d-flex align-items-center gap-3 justify-content-between px-3">
+                        <div>
+                          <p class="text-dark fw-medium fs-16 mb-1">Vender</p>
+                          <p class="mb-0">Catpiller</p>
+                        </div>
+                        <div class="avatar bg-light d-flex align-items-center justify-content-center rounded">
+                          <iconify-icon icon="solar:shop-2-bold-duotone" class="fs-35 text-primary"></iconify-icon>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 border-end">
+                      <div class="d-flex align-items-center gap-3 justify-content-between px-3">
+                        <div>
+                          <p class="text-dark fw-medium fs-16 mb-1">Date</p>
+                          <p class="mb-0">April 23 , 2024</p>
+                        </div>
+                        <div class="avatar bg-light d-flex align-items-center justify-content-center rounded">
+                          <iconify-icon icon="solar:calendar-date-bold-duotone" class="fs-35 text-primary"></iconify-icon>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 border-end">
+                      <div class="d-flex align-items-center gap-3 justify-content-between px-3">
+                        <div>
+                          <p class="text-dark fw-medium fs-16 mb-1">Paid By</p>
+                          <p class="mb-0">Gaston Lapierre</p>
+                        </div>
+                        <div class="avatar bg-light d-flex align-items-center justify-content-center rounded">
+                          <iconify-icon icon="solar:user-circle-bold-duotone" class="fs-35 text-primary"></iconify-icon>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="d-flex align-items-center gap-3 justify-content-between px-3">
+                        <div>
+                          <p class="text-dark fw-medium fs-16 mb-1">Reference #IMEMO</p>
+                          <p class="mb-0">#0758267/90</p>
+                        </div>
+                        <div class="avatar bg-light d-flex align-items-center justify-content-center rounded">
+                          <iconify-icon icon="solar:clipboard-text-bold-duotone" class="fs-35 text-primary"></iconify-icon>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+        </div>
+        <div class="col-xl-3 col-lg-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Order Summary</h4>
+            </div>
+            <% 
+       
+       var discount = 0;
+       if (order.coupon) {
+           if (order.coupon.discountType === 'fixed') {
+               discount = Math.min(order.coupon.discount, order.amount);
+           } else if (order.coupon.discountType === 'percentage') {
+               discount = (order.coupon.discount / 100) * order.amount;
+           }
+       }
+       %>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <tbody>
+                    <tr>
+                      <td class="px-0">
+                        <p class="d-flex mb-0 align-items-center gap-1">
+                          <iconify-icon icon="solar:clipboard-text-broken"></iconify-icon> Sub Total :
+                        </p>
+                      </td>
+                      <td class="text-end text-dark fw-medium px-0">$<%- order.amount?.toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                      <td class="px-0">
+                        <p class="d-flex mb-0 align-items-center gap-1">
+                          <iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon> Discount <%- order.coupon ? `(${order.coupon.couponCode})` : '' %> :
+                        </p>
+                      </td>
+                      <td class="text-end text-dark fw-medium px-0">-$<%- order.discount?.toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                      <td class="px-0">
+                        <p class="d-flex mb-0 align-items-center gap-1">
+                          <iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge :
+                        </p>
+                      </td>
+                      <td class="text-end text-dark fw-medium px-0">$<%- order.shippingPrice?.toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                      <td class="px-0">
+                        <p class="d-flex mb-0 align-items-center gap-1">
+                          <iconify-icon icon="solar:calculator-minimalistic-broken" class="align-middle"></iconify-icon> Tax :
+                        </p>
+                      </td>
+                      <td class="text-end text-dark fw-medium px-0">$<%- order.taxPrice?.toFixed(2) %></td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between bg-light-subtle">
+              <div>
+                <p class="fw-medium text-dark mb-0">Total Amount</p>
+              </div>
+              <div>
+                <p class="fw-medium text-dark mb-0">$<%- order.amountPaid?.toFixed(2) %></p>
+              </div>
+
+            </div>
+          </div>
+          <!-- <div class="card">
+       <div class="card-header">
+         <h4 class="card-title">Payment Information</h4>
+       </div>
+       <div class="card-body">
+         <div class="d-flex align-items-center gap-3 mb-3">
+           <div class="rounded-3 bg-light avatar d-flex align-items-center justify-content-center">
+             <img src="assets/images/card/mastercard.svg" alt="" class="avatar-sm">
+           </div>
+           <div>
+             <p class="mb-1 text-dark fw-medium">Master Card</p>
+             <p class="mb-0 text-dark">xxxx xxxx xxxx 7812</p>
+           </div>
+           <div class="ms-auto">
+             <iconify-icon icon="solar:check-circle-broken" class="fs-22 text-success"></iconify-icon>
+           </div>
+         </div>
+         <p class="text-dark mb-1 fw-medium">Transaction ID : <span class="text-muted fw-normal fs-13"> #IDN768139059</span></p>
+         <p class="text-dark mb-0 fw-medium">Card Holder Name : <span class="text-muted fw-normal fs-13"> Gaston Lapierre</span></p>
+
+       </div>
+     </div> -->
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Customer Details</h4>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2">
+                <div>
+                  <p class="mb-1"><%- order.firstName %> <%- order.lastName %></p>
+                  <a href="mailto:<%- order.email %>" class="link-primary fw-medium"><%- order.email %></a>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <h5 class="">Contact Number</h5>
+              </div>
+              <p class="mb-1"><a href="tel:<%- order.phone %>" class="link-primary fw-medium"><%- order.phone %></a></p>
+
+              <div class="d-flex justify-content-between mt-3">
+                <h5 class="">Shipping Address</h5>
+              </div>
+
+              <div>
+                <p class="mb-1"><%- order.deliveryFirstName %> <%- order.deliveryLastName %></p>
+                <p class="mb-1"><%- order.address %></p>
+                <p class="mb-1"><%- order.city %>, <%- order.state %> <%- order.zipCode %></p>
+                <p class="mb-1"><%- order.country %></p>
+                <p class="mb-1"><a href="tel:<%- order.phone %>" class="link-primary fw-medium"><%- order.phone %></a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ==================================================== -->
+  <!-- End Page Content -->
+  <!-- ==================================================== -->
+
+</div>
+<%- include('./partials/footer') %>

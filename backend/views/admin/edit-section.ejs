@@ -1,0 +1,171 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-xxl">
+
+    <div class="row">
+      <div class="col-xl-12">
+        <form action="/api/section/edit" method="post">
+          <input type="hidden" name="id" value="<%- section._id %>">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title mb-1 anchor">Edit Section (<%- section.sectionOf %>)</h5>
+              <div class="">
+                <div class="row g-4">
+                  <div class="col-12">
+                    <label for="simpleinput" class="form-label">Title</label>
+                    <input type="text" id="simpleinput" name="title" class="form-control" value="<%- section.title %>">
+                  </div>
+
+                  <div class="col-12">
+                    <label for="example-textarea" class="form-label">Content</label>
+                    <textarea name="content" id="content" class="d-none"><%- section.content %></textarea>
+                    <div id="snow-editor" style="height: 300px;">
+                      <%- section.content %>
+                    </div>
+                  </div>
+                  <% section.images.forEach((item,index) => { %>
+                  <div class="col-lg-4 col-12">
+                    <label class="form-label">Image <%- index + 1 %> </label>
+                    <label class="dropzone w-100" id="image<%- index %>">
+                      <div class="fallback d-none">
+                        <input class="hidden-inp" type="hidden" name="images">
+                        <input name="image" type="file" id="image<%- index %>" accept="image/png, image/jpeg">
+                      </div>
+                      <div class="dz-message needsclick">
+                        <i class="h1 bx bx-cloud-upload"></i>
+                        <h3>Drop files here or click to upload.</h3>
+                      </div>
+                      <img class="img-fluid" src="<%- item %>" alt="">
+                    </label>
+                  </div>
+                  <% }) %>
+                  <div class="col-12"></div>
+                  <% section.videos.forEach((item,index) => { %>
+                  <div class="col-lg-4 col-12">
+                    <label class="form-label">Video <%- index + 1 %> </label>
+                    <label class="dropzone w-100" id="video<%- index %>">
+                      <div class="fallback d-none">
+                        <input class="hidden-inp" type="hidden" name="videos">
+                        <input class="video-upload" name="video" type="file" id="video<%- index %>" accept="video/mp4, video/x-msvideo, video/x-matroska">
+                      </div>
+                      <div class="dz-message needsclick">
+                        <i class="h1 bx bx-cloud-upload"></i>
+                        <h3>Drop files here or click to upload (mp4, avi, mkv).</h3>
+                      </div>
+                      <video loop autoplay muted>
+                        <source src="<%- item %>" type="video/mp4">
+                      </video>
+                    </label>
+                  </div>
+                  <% }) %>
+                  <% section.documents.forEach((item,index) => { %>
+                  <div class="col-lg-4 col-12">
+                    <label class="form-label">Document <%- index + 1 %> </label>
+                    <label class="dropzone w-100" id="document<%- index %>">
+                      <div class="fallback d-none">
+                        <input class="hidden-inp" type="hidden" name="documents">
+                        <input class="document-upload" name="document" type="file" id="document<%- index %>" accept="application/pdf">
+                      </div>
+                      <div class="dz-message needsclick">
+                        <i class="h1 bx bx-cloud-upload"></i>
+                        <h3>Drop files here or click to upload (pdf).</h3>
+                      </div>
+                      <object data="<%- item %>" type="application/pdf">
+                        <p>Your browser does not support PDFs.
+                          <a href="<%- item %>" target="_blank">Download the PDF</a>.
+                        </p>
+                      </object>
+                    </label>
+                  </div>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-primary" type="submit">Update</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- End Container Fluid -->
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+<%- include('./partials/footer') %>
+<script>
+  const fetchSection = async (id) => {
+    // const response = await fetch(`/api/section/fetch/${id}`, {
+    //      method: 'POST',
+    //      headers: {
+    //           "Content-Type": "application/json",
+    //      },
+    // })
+    // const { data } = await response.json()
+    // console.log(data)
+    // const { _id, title } = data
+    const bannerModal = new bootstrap.Modal(document.getElementById('editSection'));
+    // bannerModal._element.querySelector(`input[name='title']`).value = title
+    // bannerModal._element.querySelector(`input[name='id']`).value = _id
+    bannerModal.show();
+  }
+</script>
+<script>
+  var quill = new Quill('#snow-editor', {
+    theme: 'snow',
+    modules: {
+      'toolbar': [
+        ['bold', 'italic', 'underline', 'strike'],
+        // [{
+        //     'color': []
+        //   },
+        //   {
+        //     'background': []
+        //   }
+        // ],
+        [{
+            'script': 'super'
+          },
+          {
+            'script': 'sub'
+          }
+        ],
+        // [{
+        //     'header': [false, 1, 2, 3, 4, 5, 6]
+        //   },
+        //   'blockquote', 'code-block'
+        // ],
+        [{
+            'list': 'ordered'
+          },
+          {
+            'list': 'bullet'
+          },
+          {
+            'indent': '-1'
+          }, {
+            'indent': '+1'
+          }
+        ],
+        ['direction', {
+          'align': []
+        }],
+        ['link'],
+        ['clean']
+      ]
+    },
+  });
+  quill.on('text-change', function() {
+  const html = quill.root.innerHTML;
+  document.getElementById('content').value = html;
+});
+</script>

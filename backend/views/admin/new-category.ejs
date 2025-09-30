@@ -1,0 +1,96 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-xxl">
+
+    <div class="row">
+     <form action="/api/category/create" method="post">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Add Banner Photo</h4>
+          </div>
+          <div class="card-body">
+            <div class="dropzone">
+              <div class="fallback">
+                <input class="image -upload" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                <input type="hidden" name="banner" class="image-url" />
+              </div>
+              <div class="dz-message needsclick">
+                <i class="bx bx-cloud-upload fs-48 text-primary"></i>
+                <h3 class="mt-4">Drop your images here, or <span class="text-primary">click to browse</span></h3>
+                <span class="text-muted fs-13">
+                  1600 x 1200 (4:3) recommended. PNG, JPG and WEBP files are allowed
+                </span>
+              </div>              
+              <div class="row g-4 upload-preview">
+                
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Add Thumbnail Photo</h4>
+          </div>
+          <div class="card-body">
+            <div class="dropzone">
+              <div class="fallback">
+                <input class="image-upload" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                <input type="hidden" name="image" class="image-url" />
+              </div>
+              <div class="dz-message needsclick">
+                <i class="bx bx-cloud-upload fs-48 text-primary"></i>
+                <h3 class="mt-4">Drop your images here, or <span class="text-primary">click to browse</span></h3>
+                <span class="text-muted fs-13">
+                  1600 x 1200 (4:3) recommended. PNG, JPG and WEBP files are allowed
+                </span>
+              </div>              
+              <div class="row g-4 upload-preview"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">General Information</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label for="category-title" class="form-label">Category Title</label>
+                  <input name="title" type="text" id="category-title" class="form-control" placeholder="Enter Title">
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="mb-0">
+                  <label for="description" class="form-label">Description</label>
+                  <textarea name="description" class="form-control bg-light-subtle" id="description" rows="7" placeholder="Type description"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-3 bg-light mb-3 rounded">
+          <div class="row justify-content-end g-2">
+            <div class="col-lg-2">
+              <button type="submit" class="btn btn-outline-secondary w-100">Save Change</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
+
+  </div>
+  <!-- End Container Fluid -->
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+
+<%- include('./partials/footer') %>

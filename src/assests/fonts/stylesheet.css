@@ -1,0 +1,192 @@
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Bold.eot');
+    src: local('Gopher Bold'), local('Gopher-Bold'),
+        url('Gopher-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Bold.woff2') format('woff2'),
+        url('Gopher-Bold.woff') format('woff'),
+        url('Gopher-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Medium.eot');
+    src: local('Gopher Medium'), local('Gopher-Medium'),
+        url('Gopher-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Medium.woff2') format('woff2'),
+        url('Gopher-Medium.woff') format('woff'),
+        url('Gopher-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher Hairline';
+    src: url('Gopher-HairlineItalic.eot');
+    src: local('Gopher Hairline Italic'), local('Gopher-HairlineItalic'),
+        url('Gopher-HairlineItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-HairlineItalic.woff2') format('woff2'),
+        url('Gopher-HairlineItalic.woff') format('woff'),
+        url('Gopher-HairlineItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Light.eot');
+    src: local('Gopher Light'), local('Gopher-Light'),
+        url('Gopher-Light.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Light.woff2') format('woff2'),
+        url('Gopher-Light.woff') format('woff'),
+        url('Gopher-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-ThinItalic.eot');
+    src: local('Gopher Thin Italic'), local('Gopher-ThinItalic'),
+        url('Gopher-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-ThinItalic.woff2') format('woff2'),
+        url('Gopher-ThinItalic.woff') format('woff'),
+        url('Gopher-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Thin.eot');
+    src: local('Gopher Thin'), local('Gopher-Thin'),
+        url('Gopher-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Thin.woff2') format('woff2'),
+        url('Gopher-Thin.woff') format('woff'),
+        url('Gopher-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Italic.eot');
+    src: local('Gopher Italic'), local('Gopher-Italic'),
+        url('Gopher-Italic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Italic.woff2') format('woff2'),
+        url('Gopher-Italic.woff') format('woff'),
+        url('Gopher-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-HeavyItalic.eot');
+    src: local('Gopher Heavy Italic'), local('Gopher-HeavyItalic'),
+        url('Gopher-HeavyItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-HeavyItalic.woff2') format('woff2'),
+        url('Gopher-HeavyItalic.woff') format('woff'),
+        url('Gopher-HeavyItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-BoldItalic.eot');
+    src: local('Gopher Bold Italic'), local('Gopher-BoldItalic'),
+        url('Gopher-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-BoldItalic.woff2') format('woff2'),
+        url('Gopher-BoldItalic.woff') format('woff'),
+        url('Gopher-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-LightItalic.eot');
+    src: local('Gopher Light Italic'), local('Gopher-LightItalic'),
+        url('Gopher-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-LightItalic.woff2') format('woff2'),
+        url('Gopher-LightItalic.woff') format('woff'),
+        url('Gopher-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-BlackItalic.eot');
+    src: local('Gopher Black Italic'), local('Gopher-BlackItalic'),
+        url('Gopher-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-BlackItalic.woff2') format('woff2'),
+        url('Gopher-BlackItalic.woff') format('woff'),
+        url('Gopher-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher Hairline';
+    src: url('Gopher-Hairline.eot');
+    src: local('Gopher Hairline'), local('Gopher-Hairline'),
+        url('Gopher-Hairline.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Hairline.woff2') format('woff2'),
+        url('Gopher-Hairline.woff') format('woff'),
+        url('Gopher-Hairline.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-MediumItalic.eot');
+    src: local('Gopher Medium Italic'), local('Gopher-MediumItalic'),
+        url('Gopher-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-MediumItalic.woff2') format('woff2'),
+        url('Gopher-MediumItalic.woff') format('woff'),
+        url('Gopher-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Heavy.eot');
+    src: local('Gopher Heavy'), local('Gopher-Heavy'),
+        url('Gopher-Heavy.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Heavy.woff2') format('woff2'),
+        url('Gopher-Heavy.woff') format('woff'),
+        url('Gopher-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Black.eot');
+    src: local('Gopher Black'), local('Gopher-Black'),
+        url('Gopher-Black.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Black.woff2') format('woff2'),
+        url('Gopher-Black.woff') format('woff'),
+        url('Gopher-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('Gopher-Regular.eot');
+    src: local('Gopher Regular'), local('Gopher-Regular'),
+        url('Gopher-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Gopher-Regular.woff2') format('woff2'),
+        url('Gopher-Regular.woff') format('woff'),
+        url('Gopher-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+

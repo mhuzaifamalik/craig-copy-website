@@ -1,0 +1,125 @@
+<%- include('./partials/header') %>
+     <!-- ==================================================== -->
+     <!-- Start right Content here -->
+     <!-- ==================================================== -->
+     <div class="page-content">
+
+          <!-- Start Container Fluid -->
+          <div class="container-xxl">
+
+               <div class="row">
+                    <div class="col-xl-12">
+                         <div class="card">
+                              <div>
+                                   <div class="table-responsive">
+                                        <table class="table align-middle mb-0 table-hover table-centered">
+                                             <thead class="bg-light-subtle">
+                                                  <tr>
+                                                       <th>Banner</th>
+                                                       <th>Title</th>
+                                                       <th>Action</th>
+                                                  </tr>
+                                             </thead>
+                                             <tbody>
+                                                  <% banners.forEach((item)=> { %>
+                                                       <tr>
+                                                            <td>
+                                                                 <div class="d-flex align-items-center gap-2">
+                                                                      <div
+                                                                           class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                                                           <img src="<%- item.bannerImage %>"
+                                                                                alt="<%- item.title %>"
+                                                                                class="avatar-md">
+                                                                      </div>
+                                                                      <p class="text-dark fw-medium fs-15 mb-0"><%-
+                                                                                item.page %></p>
+                                                                 </div>
+
+                                                            </td>
+                                                            <td><%- item.title %></td>
+                                                            <td>
+                                                                 <div class="d-flex gap-2">
+                                                                      <button onclick="fetchBanner('<%- item.page %>')"
+                                                                           class="btn btn-soft-primary btn-sm"><iconify-icon
+                                                                                icon="solar:pen-2-broken"
+                                                                                class="align-middle fs-18"></iconify-icon></button>
+                                                                 </div>
+                                                            </td>
+                                                       </tr>
+                                                       <% }) %>
+                                             </tbody>
+                                        </table>
+                                   </div>
+                                   <!-- end table-responsive -->
+                              </div>
+                         </div>
+                    </div>
+               </div>
+
+          </div>
+          <!-- End Container Fluid -->
+     </div>
+     <!-- ==================================================== -->
+     <!-- End Page Content -->
+     <!-- ==================================================== -->
+
+
+     <!-- First Modal -->
+     <div class="modal fade" id="editBanner" aria-hidden="true" aria-labelledby="editBannerLabel" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                    <div class="modal-header">
+                         <h5 class="modal-title" id="editBannerLabel">Edit Banner</h5>
+                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/api/banner/edit" method="POST">
+                         <div class="modal-body">
+                              <div class="row g-4">
+                                   <div class="col-12">
+                                        <input type="hidden" name="id">
+                                        <label class="dropzone w-100" id="banner-image">
+                                             <div class="fallback d-none">
+                                                  <input class="hidden-inp" type="hidden" name="bannerImage">
+                                                  <input class="image-upload" name="image" type="file" id="banner-image"
+                                                       accept="image/png, image/jpeg">
+                                             </div>
+                                             <div class="dz-message needsclick">
+                                                  <i class="h1 bx bx-cloud-upload"></i>
+                                                  <h3>Drop files here or click to upload.</h3>
+                                             </div>
+                                        </label>
+                                   </div>
+                                   <div class="col-12">
+                                        <div class="input-field">
+                                             <label class="form-label">Title</label>
+                                             <input name="title" type="text" class="form-control">
+                                        </div>
+                                   </div>
+                              </div>
+                         </div>
+                         <div class="modal-footer">
+                              <button class="btn btn-primary" type="submit">Update</button>
+                         </div>
+                    </form>
+               </div>
+          </div>
+     </div>
+
+     <%- include('./partials/footer') %>
+          <script>
+               const fetchBanner = async (page) => {
+                    const response = await fetch(`/api/banner/fetch/${page}`, {
+                         method: 'POST',
+                         headers: {
+                              "Content-Type": "application/json",
+                         },
+                    })
+                    const { data } = await response.json()
+                    console.log(data)
+                    const { _id, title } = data
+                    const bannerModal = new bootstrap.Modal(document.getElementById('editBanner'));
+                    bannerModal._element.querySelector(`input[name='title']`).value = title
+                    bannerModal._element.querySelector(`input[name='id']`).value = _id
+                    bannerModal.show();
+               }
+          </script>

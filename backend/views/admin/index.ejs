@@ -1,0 +1,131 @@
+<%- include('./partials/header') %>
+<!-- ==================================================== -->
+<!-- Start right Content here -->
+<!-- ==================================================== -->
+<div class="page-content">
+
+  <!-- Start Container Fluid -->
+  <div class="container-fluid">
+
+    <!-- Start here.... -->
+    <div class="row">
+      <div class="col-12">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card overflow-hidden">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-6">
+                    <div class="avatar-md bg-soft-primary rounded">
+                      <iconify-icon icon="solar:cart-5-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
+                    </div>
+                  </div> <!-- end col -->
+                  <div class="col-6 text-end">
+                    <p class="text-muted mb-0 text-truncate">Total Orders</p>
+                    <h3 class="text-dark mt-1 mb-0"><%- totalOrderCount %></h3>
+                  </div> <!-- end col -->
+                </div> <!-- end row-->
+              </div> <!-- end card body -->
+            </div> <!-- end card -->
+          </div> <!-- end col -->
+          <div class="col-md-6">
+            <div class="card overflow-hidden">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-6">
+                    <div class="avatar-md bg-soft-primary rounded">
+                      <i class="bx bx-award avatar-title fs-24 text-primary"></i>
+                    </div>
+                  </div> <!-- end col -->
+                  <div class="col-6 text-end">
+                    <p class="text-muted mb-0 text-truncate">Total Customers</p>
+                    <h3 class="text-dark mt-1 mb-0"><%- totalCustomers %></h3>
+                  </div> <!-- end col -->
+                </div> <!-- end row-->
+              </div> <!-- end card body -->
+            </div> <!-- end card -->
+          </div> <!-- end col -->
+        </div> <!-- end row -->
+      </div> <!-- end col -->
+
+    </div> <!-- end row -->
+
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <h4 class="card-title">
+                Recent Orders (Last 3 Days)
+              </h4>
+            </div>
+          </div>
+          <!-- end card body -->
+          <div class="table-responsive">
+            <table class="table align-middle mb-0 table-hover table-centered">
+              <thead class="bg-light-subtle">
+                <tr>
+                  <th>Order ID</th>
+                  <th>Created at</th>
+                  <th>Customer</th>
+                  <th>Paid Amount</th>
+                  <!-- <th>Payment Status</th> -->
+                  <th>Items</th>
+                  <!-- <th>Delivery Number</th> -->
+                  <th>Order Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach(order => { %>
+                <tr>
+                  <td><%- order.orderId %></td>
+                  <td><%- new Date(order.createdAt).toDateString() %></td>
+                  <td>
+                    <span class="link-primary fw-medium"><%- order.firstName %> <%- order.lastName %></span>
+                  </td>
+                  <td> $<%- order.amountPaid.toFixed(2) %></td>
+                  <td><%- order.products.length + order.creation.length %></td>
+                  <!-- <td> -</td> -->
+                  <td> <span style="text-transform: capitalize;" class="badge border border-secondary text-secondary  px-2 py-1 fs-13"><%- order.status %></span></td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <a href="/admin/order/<%- order.orderId %>" class="btn btn-light btn-sm">
+                        <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <!-- table responsive -->
+
+          <div class="card-footer border-top">
+            <div class="row g-3">
+              <div class="col-sm">
+                <div class="text-muted">
+                  Showing
+                  <span class="fw-semibold"><%- orders.length %></span>
+                  of
+                  <span class="fw-semibold"><%- totalOrderCount %></span>
+                  orders
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end card -->
+      </div>
+      <!-- end col -->
+    </div> <!-- end row -->
+
+  </div>
+  <!-- End Container Fluid -->
+</div>
+<!-- ==================================================== -->
+<!-- End Page Content -->
+<!-- ==================================================== -->
+
+<%- include('./partials/footer') %>
