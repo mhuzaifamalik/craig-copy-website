@@ -17,6 +17,8 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import React, { useEffect } from 'react';
+import Thankyou from "./pages/Thankyou";
+
 
 function App() {
   useEffect(() => {
@@ -72,6 +74,7 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
+        <Route path="/thankyou" element={<Thankyou />} />
       </Routes>
 
       <Footer />
