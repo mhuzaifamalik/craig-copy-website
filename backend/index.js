@@ -25,7 +25,7 @@ app.use(authValidator())
 
 app.set('view engine', 'ejs');
 app.use('/', express.static(__dirname + '/views'));
-
+app.use('/uploads', express.static(path.join(__dirname, 'views', 'uploads')));
 const PORT = process.env.PORT || 6871
 
 // app.use(async(req, res, next) => {
@@ -42,6 +42,7 @@ const PORT = process.env.PORT || 6871
 //     }
 //     next()
 // })
+
 
 app.get('/admin', async (req, res) => {
     const user = req.user
@@ -265,6 +266,8 @@ app.use('/', (req, res) => {
     const filePath = path.resolve(__dirname, 'views', 'index.html');
     res.sendFile(filePath);
 });
+
+
 
 
 // const addUrl = () => {

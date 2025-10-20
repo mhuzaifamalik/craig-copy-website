@@ -4,7 +4,7 @@ const Letter = require('./schema/Letter');
 require('./db'); // Ensure you have a connection to your database
 
 // const baseDir = path.join(__dirname, 'views', 'uploads', 'images', 'sepia-letters'); // Adjust this path
-const baseDir = path.join(__dirname, 'numbers'); // Adjust this path
+const baseDir = path.join(__dirname, 'numbers'  ,'views', 'uploads', 'images', 'sepia-letters'); // Adjust this path
 
 const isImage = (filename) => /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
 

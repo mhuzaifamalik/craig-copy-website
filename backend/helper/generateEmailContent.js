@@ -1,5 +1,25 @@
 const generateOrderEmailBody = (order) => {
-  const { orderId, firstName, lastName, phone, products, creation, paymentinfo, deliveryFirstName, deliveryLastName, address, city, state, zipCode, country, amount, shippingPrice, taxPrice, amountPaid, createdAt } = order;
+  const {
+    orderId,
+    firstName,
+    lastName,
+    phone,
+    products,
+    creation,
+    paymentinfo,
+    deliveryFirstName,
+    deliveryLastName,
+    address,
+    city,
+    state,
+    zipCode,
+    country,
+    amount,
+    shippingPrice,
+    taxPrice,
+    amountPaid,
+    createdAt,
+  } = order;
   const subject = `Order Confirmation - ${orderId}`;
   const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.5;">
@@ -30,10 +50,14 @@ const generateOrderEmailBody = (order) => {
         <td style="padding: 5px 0;"><strong>Phone:</strong></td>
         <td style="padding: 5px 0;">${phone}</td>
       </tr>
-      ${paymentinfo ? `<tr>
+      ${
+        paymentinfo
+          ? `<tr>
         <td style="padding: 5px 0;"><strong>Payment Method:</strong></td>
         <td style="padding: 5px 0;">${paymentinfo.paymentId}</td>
-      </tr>` : ''}
+      </tr>`
+          : ""
+      }
     </table>
   </div>
 
@@ -48,26 +72,42 @@ const generateOrderEmailBody = (order) => {
       </tr>
     </thead>
     <tbody>
-    ${products.map(item => {
-    return `
+    ${products
+      .map((item) => {
+        return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.product.title}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.quantity}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${item.product.price}</td>
-      </tr>`
-  }).join('')}
-    ${creation.map(item => {
-    return `
+      </tr>`;
+      })
+      .join("")}
+    ${creation
+      .map((item) => {
+        return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">
-        ${Array.from(item.items).map(obj => {
-      return `<div><img src="http://craigphotoletters.com${obj.letter.images[obj.imageIndex]}" alt="${obj.letter.letter}" style="max-width: 50px; margin-right: 10px;"><span>${obj.letter.images[obj.imageIndex].split('/').pop().split('.')[0]}</span></div>`
-    }).join(' ')}
+        ${Array.from(item.items)
+          .map((obj) => {
+            return `<div><img src="http://craigphotoletters.com${
+              obj.letter.images[obj.imageIndex]
+            }" alt="${
+              obj.letter.letter
+            }" style="max-width: 50px; margin-right: 10px;"><span>${
+              obj.letter.images[obj.imageIndex].split("/").pop().split(".")[0]
+            }</span></div>`;
+          })
+          .join(" ")}
         </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.quantity}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${item.items.length * item.quantity * 10}</td>
-      </tr>`
-  }).join('')}
+        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${
+          item.quantity
+        }</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${
+          item.items.length * item.quantity * 10
+        }</td>
+      </tr>`;
+      })
+      .join("")}
     </tbody>
     <tfoot>
       <tr>
@@ -106,7 +146,7 @@ const generateOrderEmailBody = (order) => {
 </div>
     `;
   return { subject, html };
-}
+};
 
 const generateContactEmailBody = (contact) => {
   const { firstName, lastName, email, phone, message } = contact;
@@ -124,30 +164,43 @@ const generateContactEmailBody = (contact) => {
       </div>
     `;
   return { subject, html };
-}
+};
 
 const generateOrderStatusUpdateEmailBody = (order, oldStatus, newStatus) => {
-  const { orderId, firstName, lastName, deliveryFirstName, deliveryLastName, address, city, state, zipCode, country } = order;
-  
+  const {
+    orderId,
+    firstName,
+    lastName,
+    deliveryFirstName,
+    deliveryLastName,
+    address,
+    city,
+    state,
+    zipCode,
+    country,
+  } = order;
+
   const statusMessages = {
-    pending: 'Your order has been received and is pending processing.',
-    processing: 'Great news! Your order is now being processed.',
-    shipped: 'Your order has been shipped and is on its way!',
-    completed: 'Your order has been completed and delivered.',
-    cancelled: 'Your order has been cancelled.',
-    refunded: 'Your order has been refunded.'
+    pending: "Your order has been received and is pending processing.",
+    processing: "Great news! Your order is now being processed.",
+    shipped: "Your order has been shipped and is on its way!",
+    completed: "Your order has been completed and delivered.",
+    cancelled: "Your order has been cancelled.",
+    refunded: "Your order has been refunded.",
   };
 
   const statusColors = {
-    pending: '#f39c12',
-    processing: '#3498db',
-    shipped: '#9b59b6',
-    completed: '#27ae60',
-    cancelled: '#e74c3c',
-    refunded: '#95a5a6'
+    pending: "#f39c12",
+    processing: "#3498db",
+    shipped: "#9b59b6",
+    completed: "#27ae60",
+    cancelled: "#e74c3c",
+    refunded: "#95a5a6",
   };
 
-  const subject = `Order Update - ${orderId} - ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`;
+  const subject = `Order Update - ${orderId} - ${
+    newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
+  }`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.5;">
       <!-- Header -->
@@ -159,10 +212,14 @@ const generateOrderStatusUpdateEmailBody = (order, oldStatus, newStatus) => {
 
       <!-- Status Update -->
       <div style="background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 4px; text-align: center;">
-        <div style="background-color: ${statusColors[newStatus]}; color: white; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+        <div style="background-color: ${
+          statusColors[newStatus]
+        }; color: white; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
           <h2 style="margin: 0; font-size: 20px; text-transform: uppercase;">${newStatus}</h2>
         </div>
-        <p style="margin: 0; font-size: 16px; color: #555555;">${statusMessages[newStatus]}</p>
+        <p style="margin: 0; font-size: 16px; color: #555555;">${
+          statusMessages[newStatus]
+        }</p>
       </div>
 
       <!-- Order Details -->
@@ -183,12 +240,16 @@ const generateOrderStatusUpdateEmailBody = (order, oldStatus, newStatus) => {
           </tr>
           <tr>
             <td style="padding: 5px 0;"><strong>Current Status:</strong></td>
-            <td style="padding: 5px 0; text-transform: capitalize; color: ${statusColors[newStatus]}; font-weight: bold;">${newStatus}</td>
+            <td style="padding: 5px 0; text-transform: capitalize; color: ${
+              statusColors[newStatus]
+            }; font-weight: bold;">${newStatus}</td>
           </tr>
         </table>
       </div>
 
-      ${newStatus === 'shipped' || newStatus === 'completed' ? `
+      ${
+        newStatus === "shipped" || newStatus === "completed"
+          ? `
       <!-- Shipping Info -->
       <div style="margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #222222;">Delivery Address</h3>
@@ -197,7 +258,9 @@ const generateOrderStatusUpdateEmailBody = (order, oldStatus, newStatus) => {
         ${city}, ${state} ${zipCode}<br>
         ${country}</p>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
       <!-- Footer -->
       <div style="padding: 20px 0; border-top: 1px solid #eeeeee; color: #777777; font-size: 14px;">
@@ -207,6 +270,10 @@ const generateOrderStatusUpdateEmailBody = (order, oldStatus, newStatus) => {
     </div>
   `;
   return { subject, html };
-}
+};
 
-module.exports = { generateOrderEmailBody, generateContactEmailBody, generateOrderStatusUpdateEmailBody };
+module.exports = {
+  generateOrderEmailBody,
+  generateContactEmailBody,
+  generateOrderStatusUpdateEmailBody,
+};
