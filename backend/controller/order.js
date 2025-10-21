@@ -20,15 +20,14 @@ const {
 const SalesTax = require("sales-tax");
 
 const squareClient = new SquareClient({
-  token: squareAccessTokenSandbox, // Use your Production Access Token
-  environment: SquareEnvironment.Sandbox, // Switch to Production
+  token: squareAccessToken, // ✅ Use Production Access Token
+  environment: SquareEnvironment.Production, // ✅ Set to Production
 });
 
 const getLocation = () =>
   new Promise(async (resolve, reject) => {
     const response = await squareClient.locations.get({
-      // locationId: squareLocationId,
-      locationId: squareLocationIdSandbox,
+      locationId: squareLocationId,
     });
     console.log("Location Response", response);
     resolve(response.location);

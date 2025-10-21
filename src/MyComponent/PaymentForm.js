@@ -28,11 +28,11 @@ const PaymentForm = ({
       try {
         payments = window.Square.payments(
           // sandbox
-          "sandbox-sq0idb-7LCROf9ulDla4wfyUrGxDw",
-          "LANAP5W17PMBW"
+          // "sandbox-sq0idb-7LCROf9ulDla4wfyUrGxDw",
+          // "LANAP5W17PMBW"
           // production
-          // 'sq0idp-PHfy-86q_r9CkjJFsOpX0w',
-          // 'LC06S1Y5QHSBY'
+          'sq0idp-PHfy-86q_r9CkjJFsOpX0w',
+          'LC06S1Y5QHSBY'
         );
 
         // Clear the card container before attaching
