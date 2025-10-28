@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FaCreditCard } from "react-icons/fa6";
-import { FaGoogle } from "react-icons/fa";
 import { CartContext } from "../context/Cart";
 import { useNavigate } from "react-router-dom";
 
@@ -14,273 +13,173 @@ const PaymentForm = ({
   setOrderData,
 }) => {
   const { emptyCartItem, cartProducts } = useContext(CartContext);
-  // const isCardInitialized = useRef(false);
-  const iframeRef = useRef();
+  const iframeRef = useRef(null);
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   let payments;
-  //   let card;
-  //   let paymentButton;
-
-  //   const loadSquare = async () => {
-  //     if (isCardInitialized.current) return;
-
-  //     try {
-  //       payments = window.Square.payments(
-  //         "sandbox-sq0idb-7LCROf9ulDla4wfyUrGxDw",
-  //         "LANAP5W17PMBW"
-  //       );
-
-  //       // Clear the card container before attaching
-  //       const cardContainer = document.getElementById("card-container");
-
-  //       card = await payments.card();
-  //       if (cardContainer) {
-  //         cardContainer.innerHTML = "";
-  //       }
-  //       if (isCardInitialized.current) return;
-  //       await card.attach("#card-container");
-  //       isCardInitialized.current = true;
-
-  //       paymentButton = document.getElementById("card-button");
-  //       const handlePayment = async () => {
-  //         try {
-  //           paymentButton.disabled = true; // Disable the button to prevent multiple clicks
-  //           paymentButton.innerHTML = "Processing...";
-  //           const result = await card.tokenize();
-  //           if (result.status === "OK") {
-  //             const token = result.token;
-  //             const response = await fetch("/api/order/new", {
-  //               method: "POST",
-  //               headers: {
-  //                 "Content-Type": "application/json",
-  //               },
-  //               // body: JSON.stringify({ token, orderData, products: cartProducts }),
-  //               body: JSON.stringify({
-  //                 ...orderData,
-  //                 products: cartProducts,
-  //                 paymentType: checkedValue,
-  //                 token,
-  //               }),
-  //             });
-  //             const data = await response.json();
-  //             if (data.success) {
-  //               sweetAlert("success", "Order Placed Successfully");
-  //               emptyCartItem();
-  //               setActiveStep(0);
-  //               setCompletedSteps([]);
-  //               setOrderData({
-  //                 coupon: null,
-  //                 // user: userData?.id,
-  //                 firstName: "",
-  //                 lastName: "",
-  //                 email: "",
-  //                 giftMessage: "",
-  //                 deliveryFirstName: "",
-  //                 deliveryLastName: "",
-  //                 phone: "",
-  //                 company: "",
-  //                 country: "United States",
-  //                 address: "",
-  //                 city: "",
-  //                 state: "",
-  //                 zipCode: "",
-  //                 paymentType: "",
-  //               });
-  //               // sweetAlert("success", "Payment successful!");
-  //               setTimeout(() => {
-  //                 navigate("/thankyou");
-  //               }, 1000);
-  //             } else {
-  //               sweetAlert("error", "Payment failed.");
-  //             }
-  //           } else {
-  //             console.error(result.errors);
-  //           }
-  //         } catch (error) {
-  //           console.error("Payment error:", error);
-  //           sweetAlert(
-  //             "error",
-  //             error.message ||
-  //               "An error occurred during payment. Please try again."
-  //           );
-  //         } finally {
-  //           paymentButton.disabled = false; // Re-enable the button
-  //           paymentButton.innerHTML = "Proceed"; // Reset button text
-  //         }
-  //       };
-  //       paymentButton.addEventListener("click", handlePayment);
-  //     } catch (error) {
-  //       console.error("Square initialization error:", error);
-  //     }
-  //   };
-
-  //   loadSquare();
-
-  //   // Cleanup
-  //   return () => {
-  //     if (paymentButton) {
-  //       paymentButton.replaceWith(paymentButton.cloneNode(true));
-  //     }
-  //     if (card) {
-  //       card
-  //         .destroy()
-  //         .catch((e) => console.error("Error cleaning up card:", e));
-  //     }
-  //     isCardInitialized.current = false;
-  //   };
-  // }, []);
+  const [loading, setLoading] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState("");
+  const [chargeId, setChargeId] = useState("");
+  const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
-    // CLOVER IFRAME INTEGRATION
-    const loadCloverIframe = async () => {
-      const iframeContainer = document.getElementById("clover-container");
-      if (iframeContainer) {
-        iframeContainer.innerHTML = `<iframe 
-          src="https://checkout.clover.com/ecommerce?public_token=761a0f1f5c6cf8b9c40833c4916c39b0&amount=${(
-            orderData.amount + orderData.taxPrice
-          ).toFixed(2)}&currency=USD" 
-          width="100%" 
-          height="400" 
-          frameborder="0"
-          allow="payment"
-          id="clover-iframe"
-        ></iframe>`;
-      }
+    // Listen for messages from Clover iframe
+    const handleMessage = async (event) => {
+      // Verify origin for security
+      if (event.origin !== "https://checkout.clover.com") return;
 
-      window.addEventListener("message", async (event) => {
-        if (event.origin.includes("clover.com") && event.data.payment_token) {
-          const token = event.data.payment_token;
-          const response = await fetch("/api/order/new", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...orderData,
-              products: cartProducts,
-              paymentType: checkedValue,
-              token,
-            }),
-          });
-          const data = await response.json();
-          if (data.success) {
-            sweetAlert("success", "Order Placed Successfully");
-            emptyCartItem();
-            setActiveStep(0);
-            setCompletedSteps([]);
-            navigate("/thankyou");
-          } else {
-            sweetAlert("error", data.message || "Payment failed.");
-          }
-        }
-      });
+      const { type, chargeId: cloverChargeId } = event.data;
+
+      if (type === "CLOVER_PAYMENT_SUCCESS" && cloverChargeId) {
+        console.log("Payment successful, verifying...");
+        await verifyPayment(cloverChargeId);
+      } else if (type === "CLOVER_PAYMENT_ERROR") {
+        sweetAlert("error", "Payment failed. Please try again.");
+        setLoading(false);
+      }
     };
 
-    loadCloverIframe();
-  }, []);
+    window.addEventListener("message", handleMessage);
 
-  const makePayment = async () => {
-    const response = await fetch("/api/order/new", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...orderData,
-        products: cartProducts,
-        paymentType: checkedValue,
-      }),
-    });
-    const result = await response.json();
-    console.log("result", result);
-    const { success, message } = result;
-    if (success) {
-      emptyCartItem();
-      setActiveStep(0);
-      setCompletedSteps([]);
-      setOrderData({
-        coupon: null,
-        // user: userData?.id,
-        firstName: "",
-        lastName: "",
-        email: "",
-        giftMessage: "",
-        deliveryFirstName: "",
-        deliveryLastName: "",
-        phone: "",
-        company: "",
-        country: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        paymentType: "",
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [chargeId, orderId]);
+
+  const createCharge = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("/api/order/create-charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...orderData,
+          products: cartProducts,
+          paymentType: checkedValue,
+        }),
       });
-      sweetAlert("success", "Order Placed Successfully");
-      setTimeout(() => {
-        navigate("/Thankyou");
-      }, 1000);
-    } else {
-      sweetAlert("error", message);
+
+      const data = await response.json();
+
+      if (!data.success) {
+        sweetAlert("error", data.message || "Failed to create checkout.");
+        setLoading(false);
+        return;
+      }
+
+      setCheckoutUrl(data.checkoutUrl);
+      setChargeId(data.chargeId);
+      setOrderId(data.orderId);
+      setLoading(false);
+    } catch (err) {
+      console.error("Charge creation error:", err);
+      sweetAlert("error", "Failed to initialize payment.");
+      setLoading(false);
+    }
+  };
+
+  const verifyPayment = async (cloverChargeId) => {
+    try {
+      const response = await fetch("/api/order/payment-callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chargeId: cloverChargeId || chargeId,
+          orderId: orderId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        sweetAlert("success", "Order Placed Successfully");
+        emptyCartItem();
+        setActiveStep(0);
+        setCompletedSteps([]);
+        setOrderData({
+          coupon: null,
+          firstName: "",
+          lastName: "",
+          email: "",
+          giftMessage: "",
+          deliveryFirstName: "",
+          deliveryLastName: "",
+          phone: "",
+          company: "",
+          country: "United States",
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          paymentType: "",
+        });
+        setTimeout(() => {
+          navigate("/thankyou");
+        }, 1000);
+      } else {
+        sweetAlert("error", result.message || "Payment verification failed.");
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      sweetAlert("error", "Failed to verify payment.");
     }
   };
 
   return (
-    <>
-      <div className="step-content payment-step">
-        <p className="info-form">
-          Select how you would like to pay for your order.
-        </p>
-        <ul>
-          <li>
-            <div className="radio-wrapper">
-              <input
-                type="radio"
-                name="payment-type"
-                id="del-0"
-                checked
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setCheckedValue("Credit Card");
-                  }
-                }}
-              />
-              <label htmlFor="del-0">
-                <FaCreditCard /> Credit Card
-              </label>
-              <br />
-              <div id="clover-container" ref={iframeRef}></div>
-            </div>
-            {checkedValue === "Credit Card" && (
-              <div className="content">
-                {/* <StripeForm /> */}
+    <div className="step-content payment-step">
+      <p className="info-form">
+        Select how you would like to pay for your order.
+      </p>
+      <ul>
+        <li>
+          <div className="radio-wrapper">
+            <input
+              type="radio"
+              name="payment-type"
+              id="del-0"
+              checked={checkedValue === "Credit Card"}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setCheckedValue("Credit Card");
+                }
+              }}
+            />
+            <label htmlFor="del-0">
+              <FaCreditCard /> Credit Card
+            </label>
+          </div>
+
+          {checkedValue === "Credit Card" && (
+            <div className="content">
+              {!checkoutUrl ? (
                 <button
-                  id="card-button"
-                  // onClick={makePayment}
+                  onClick={createCharge}
+                  disabled={loading}
                   className="submit-btn"
                 >
-                  Proceed
+                  {loading ? "Loading Payment..." : "Proceed to Payment"}
                 </button>
-              </div>
-            )}
-          </li>
-          {/* <li>
-                        <div className="radio-wrapper">
-                            <input type="radio" name="payment-type" id="del-1"
-                                onChange={(e) => {
-                                    if (e.target.checked) {
-                                        setCheckedValue('G Pay')
-                                    }
-                                }} />
-                            <label htmlFor="del-1"><FaGoogle /> G Pay</label>
-                        </div>
-                        {checkedValue === 'G Pay' && <div className="content">
-                            <button onClick={makePayment} className='submit-btn'>Proceed</button>
-                        </div>}
-                    </li> */}
-        </ul>
-      </div>
-    </>
+              ) : (
+                <div style={{ marginTop: "20px" }}>
+                  <iframe
+                    ref={iframeRef}
+                    src={checkoutUrl}
+                    width="100%"
+                    height="600"
+                    frameBorder="0"
+                    allow="payment"
+                    title="Clover Payment"
+                    style={{
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </li>
+      </ul>
+    </div>
   );
 };
 

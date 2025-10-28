@@ -18,6 +18,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import React, { useEffect } from 'react';
 import Thankyou from "./pages/Thankyou";
+import PaymentCallback from './MyComponent/PaymentCallback';
 
 
 function App() {
@@ -75,6 +76,7 @@ function App() {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
         <Route path="/thankyou" element={<Thankyou />} />
+        <Route path="/payment-callback" element={<PaymentCallback />} />
       </Routes>
 
       <Footer />
