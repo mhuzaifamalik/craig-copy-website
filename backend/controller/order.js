@@ -2,15 +2,15 @@ const express = require("express");
 const Order = require("../schema/Order");
 const router = express.Router();
 const { randomUUID } = require("crypto");
-const {
-  squareAppIdSandbox,
-  squareAccessTokenSandbox,
-  squareAccessTokenProduction,
-  squareLocationIdSandbox,
-  squareAppId,
-  squareAccessToken,
-  squareLocationId,
-} = require("../env.json");
+// const {
+//   squareAppIdSandbox,
+//   squareAccessTokenSandbox,
+//   squareAccessTokenProduction,
+//   squareLocationIdSandbox,
+//   squareAppId,
+//   squareAccessToken,
+//   squareLocationId,
+// } = require("../env.json");
 const { SquareError, SquareClient, SquareEnvironment } = require("square");
 const sendMail = require("../helper/sendMail");
 const {
@@ -19,20 +19,27 @@ const {
 } = require("../helper/generateEmailContent");
 const SalesTax = require("sales-tax");
 
-const squareClient = new SquareClient({
-  token: squareAccessToken, // ✅ Use Production Access Token
-  environment: SquareEnvironment.Production, // ✅ Set to Production
-});
+// CLOVER CONFIGURATION
+const CLOVER_MID = "518993421147158";
+const CLOVER_PUBLIC_TOKEN = "761a0f1f5c6cf8b9c40833c4916c39b0";
+const CLOVER_PRIVATE_TOKEN = "8aade3b9-b171-169f-b094-0623fe96f33b";
+const CLOVER_API_BASE = "https://scl.clover.com/v1";
 
-const getLocation = () =>
-  new Promise(async (resolve, reject) => {
-    const response = await squareClient.locations.get({
-      locationId: squareLocationId,
-    });
-    console.log("Location Response", response);
-    resolve(response.location);
-  });
+// const squareClient = new SquareClient({
+//   token: squareAccessTokenSandbox, // ✅ Use Sandbox Access Token
+//   environment: SquareEnvironment.Sandbox, // ✅ Set to Sandbox
+// });
 
+// const getLocation = () =>
+//   new Promise(async (resolve, reject) => {
+//     const response = await squareClient.locations.get({
+//       locationId: squareLocationId,
+//     });
+//     console.log("Location Response", response);
+//     resolve(response.location);
+//   });
+
+// TAX CALCULATION
 router.post("/calculate-tax", async (req, res) => {
   try {
     const { country, state } = req.body;
@@ -53,10 +60,145 @@ router.post("/calculate-tax", async (req, res) => {
   }
 });
 
+// Old order creation route
+// router.post("/new", async (req, res) => {
+//   try {
+//     var {
+//       token,
+//       user,
+//       products,
+//       firstName,
+//       lastName,
+//       email,
+//       giftMessage,
+//       deliveryFirstName,
+//       deliveryLastName,
+//       phone,
+//       company,
+//       country,
+//       address,
+//       city,
+//       state,
+//       zipCode,
+//       paymentType,
+//       coupon,
+//       amount,
+//       taxPrice,
+//     } = req.body;
+//     const location = await getLocation();
+//     const paymentResponse = await squareClient.payments.create({
+//       sourceId: token,
+//       amountMoney: {
+//         amount: BigInt(parseInt((amount + taxPrice) * 100)),
+//         currency: "USD",
+//       },
+//       idempotencyKey: randomUUID(),
+//       locationId: location.id,
+//       buyerEmailAddress: email,
+//       billingAddress: {
+//         firstName,
+//         lastName,
+//         addressLine1: address,
+//         locality: city,
+//         administrativeDistrictLevel1: state,
+//         postalCode: zipCode,
+//         country: "US",
+//       },
+//     });
+//     const paymentId = paymentResponse.payment.id;
+//     const status = paymentResponse.payment.status;
+//     const creation = products
+//       .filter((item) => item.type == "letter")
+//       .map((item) => ({
+//         items: item.id.map((id, ind) => ({
+//           letter: id,
+//           imageIndex: item.items[ind],
+//         })),
+//         quantity: item.quantity,
+//       }));
+//     products = products.filter((item) => item.type !== "letter");
+//     // return
+//     const order = await Order.create({
+//       status: "pending",
+//       user,
+//       products: products.map((item) => ({
+//         product: item.id,
+//         quantity: item.quantity,
+//       })),
+//       paymentinfo: {
+//         paymentId,
+//         status,
+//         amount: amount,
+//         paymentType,
+//       },
+//       creation,
+//       firstName,
+//       lastName,
+//       email,
+//       giftMessage,
+//       deliveryFirstName,
+//       taxPrice,
+//       deliveryLastName,
+//       phone,
+//       company,
+//       country,
+//       address,
+//       city,
+//       state,
+//       zipCode,
+//       paymentType,
+//       coupon,
+//     });
+//     const orderObj = await Order.findById(order._id)
+//       .populate("user")
+//       .populate("products.product")
+//       .populate("creation.items.letter")
+//       .populate("coupon");
+//     const { subject, html } = generateOrderEmailBody(orderObj);
+//     try {
+//       // Send confirmation to the customer
+//       await sendMail(email, subject, html);
+
+//       // Send notification to admin as well
+//       await sendMail(
+//         "orders@craigphotoletters.com",
+//         `New Order from ${firstName} ${lastName}`,
+//         html
+//       );
+
+//       console.log("Emails sent to customer and admin successfully");
+//     } catch (error) {
+//       console.error("Error sending emails:", error.message);
+//     }
+
+//     return res.json({
+//       success: true,
+//       message: "Order created successfully",
+//       order,
+//     });
+//   } catch (error) {
+//     if (error instanceof SquareError) {
+//       // Handle Square API specific errors
+//       console.error("Square API Error:", error.errors);
+//       return res.json({
+//         success: false,
+//         message: error.errors.map((e) => e.detail).join(", "),
+//       });
+//     } else {
+//       // Handle other errors
+//       console.error("Payment Error:", error);
+//       return res.json({
+//         success: false,
+//         message: error.message || "Payment processing error",
+//       });
+//     }
+//   }
+// });
+// ORDER CREATION (Clover Integration)
 router.post("/new", async (req, res) => {
   try {
-    var {
-      token,
+    const {
+      token, // Clover payment token (from frontend)
       user,
       products,
       firstName,
@@ -77,30 +219,45 @@ router.post("/new", async (req, res) => {
       amount,
       taxPrice,
     } = req.body;
-    const location = await getLocation();
-    const paymentResponse = await squareClient.payments.create({
-      sourceId: token,
-      amountMoney: {
-        amount: BigInt(parseInt((amount + taxPrice) * 100)),
+
+    const totalAmount = (amount + taxPrice).toFixed(2);
+
+    // ==============================
+    // CLOVER PAYMENT CREATION
+    // ==============================
+    const paymentResponse = await fetch(`${CLOVER_API_BASE}/charges`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${CLOVER_PRIVATE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: parseFloat(totalAmount),
         currency: "USD",
-      },
-      idempotencyKey: randomUUID(),
-      locationId: location.id,
-      buyerEmailAddress: email,
-      billingAddress: {
-        firstName,
-        lastName,
-        addressLine1: address,
-        locality: city,
-        administrativeDistrictLevel1: state,
-        postalCode: zipCode,
-        country: "US",
-      },
+        source: token,
+        description: `Order by ${firstName} ${lastName}`,
+      }),
     });
-    const paymentId = paymentResponse.payment.id;
-    const status = paymentResponse.payment.status;
+
+    const paymentResult = await paymentResponse.json();
+
+    if (!paymentResponse.ok || !paymentResult.id) {
+      console.error("Clover Payment Error:", paymentResult);
+      return res.json({
+        success: false,
+        message: "Clover payment failed.",
+        details: paymentResult,
+      });
+    }
+
+    const paymentId = paymentResult.id;
+    const status = paymentResult.status || "success";
+
+    // ==============================
+    // CREATE ORDER IN DATABASE
+    // ==============================
     const creation = products
-      .filter((item) => item.type == "letter")
+      .filter((item) => item.type === "letter")
       .map((item) => ({
         items: item.id.map((id, ind) => ({
           letter: id,
@@ -108,19 +265,20 @@ router.post("/new", async (req, res) => {
         })),
         quantity: item.quantity,
       }));
-    products = products.filter((item) => item.type !== "letter");
-    // return
+
+    const productData = products.filter((item) => item.type !== "letter");
+
     const order = await Order.create({
       status: "pending",
       user,
-      products: products.map((item) => ({
+      products: productData.map((item) => ({
         product: item.id,
         quantity: item.quantity,
       })),
       paymentinfo: {
         paymentId,
         status,
-        amount: amount,
+        amount,
         paymentType,
       },
       creation,
@@ -129,7 +287,6 @@ router.post("/new", async (req, res) => {
       email,
       giftMessage,
       deliveryFirstName,
-      taxPrice,
       deliveryLastName,
       phone,
       company,
@@ -140,53 +297,42 @@ router.post("/new", async (req, res) => {
       zipCode,
       paymentType,
       coupon,
+      taxPrice,
     });
+
     const orderObj = await Order.findById(order._id)
       .populate("user")
       .populate("products.product")
       .populate("creation.items.letter")
       .populate("coupon");
+
     const { subject, html } = generateOrderEmailBody(orderObj);
     try {
-      // Send confirmation to the customer
       await sendMail(email, subject, html);
-
-      // Send notification to admin as well
       await sendMail(
         "orders@craigphotoletters.com",
         `New Order from ${firstName} ${lastName}`,
         html
       );
-
-      console.log("Emails sent to customer and admin successfully");
     } catch (error) {
-      console.error("Error sending emails:", error.message);
+      console.error("Email Error:", error.message);
     }
 
     return res.json({
       success: true,
-      message: "Order created successfully",
+      message: "Order created successfully with Clover",
       order,
     });
   } catch (error) {
-    if (error instanceof SquareError) {
-      // Handle Square API specific errors
-      console.error("Square API Error:", error.errors);
-      return res.json({
-        success: false,
-        message: error.errors.map((e) => e.detail).join(", "),
-      });
-    } else {
-      // Handle other errors
-      console.error("Payment Error:", error);
-      return res.json({
-        success: false,
-        message: error.message || "Payment processing error",
-      });
-    }
+    console.error("Payment Error:", error);
+    return res.json({
+      success: false,
+      message: error.message || "Payment processing error",
+    });
   }
 });
 
+// ORDER UPDATE
 router.post("/update", async (req, res) => {
   const { orderId, status } = req.body;
   try {
