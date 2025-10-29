@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FaCreditCard } from "react-icons/fa6";
-import { FaGoogle } from "react-icons/fa";
 import { CartContext } from "../context/Cart";
 import { useNavigate } from "react-router-dom";
 
@@ -14,229 +13,120 @@ const PaymentForm = ({
   setOrderData,
 }) => {
   const { emptyCartItem, cartProducts } = useContext(CartContext);
-  const isCardInitialized = useRef(false);
+  const iframeRef = useRef(null);
+  const [iframeReady, setIframeReady] = useState(false);
   const navigate = useNavigate();
 
+  const CLOVER_PUBLIC_TOKEN = "22d7e946-566e-d99c-bb61-925e0295add4";
+  const CLOVER_MID = "RCTSTAVI0010002";
+
+  // ✅ Load Clover SDK + Iframe
   useEffect(() => {
-    let payments;
-    let card;
-    let paymentButton;
+    const script = document.createElement("script");
+    script.src = "https://checkout.sandbox.clover.com/sdk.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-    const loadSquare = async () => {
-      if (isCardInitialized.current) return;
-
-      try {
-        payments = window.Square.payments(
-          // sandbox
-          // "sandbox-sq0idb-7LCROf9ulDla4wfyUrGxDw",
-          // "LANAP5W17PMBW"
-          // production
-          'sq0idp-PHfy-86q_r9CkjJFsOpX0w',
-          'LC06S1Y5QHSBY'
-        );
-
-        // Clear the card container before attaching
-        const cardContainer = document.getElementById("card-container");
-
-        card = await payments.card();
-        if (cardContainer) {
-          cardContainer.innerHTML = "";
-        }
-        if (isCardInitialized.current) return;
-        await card.attach("#card-container");
-        isCardInitialized.current = true;
-
-        paymentButton = document.getElementById("card-button");
-        const handlePayment = async () => {
-          try {
-            paymentButton.disabled = true; // Disable the button to prevent multiple clicks
-            paymentButton.innerHTML = "Processing...";
-            const result = await card.tokenize();
-            if (result.status === "OK") {
-              const token = result.token;
-              const response = await fetch("/api/order/new", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                // body: JSON.stringify({ token, orderData, products: cartProducts }),
-                body: JSON.stringify({
-                  ...orderData,
-                  products: cartProducts,
-                  paymentType: checkedValue,
-                  token,
-                }),
-              });
-              const data = await response.json();
-              if (data.success) {
-                sweetAlert("success", "Order Placed Successfully");
-                emptyCartItem();
-                setActiveStep(0);
-                setCompletedSteps([]);
-                setOrderData({
-                  coupon: null,
-                  // user: userData?.id,
-                  firstName: "",
-                  lastName: "",
-                  email: "",
-                  giftMessage: "",
-                  deliveryFirstName: "",
-                  deliveryLastName: "",
-                  phone: "",
-                  company: "",
-                  country: "United States",
-                  address: "",
-                  city: "",
-                  state: "",
-                  zipCode: "",
-                  paymentType: "",
-                });
-                // sweetAlert("success", "Payment successful!");
-                setTimeout(() => {
-                  navigate("/thankyou");
-                }, 1000);
-              } else {
-                sweetAlert("error", "Payment failed.");
-              }
-            } else {
-              console.error(result.errors);
-            }
-          } catch (error) {
-            console.error("Payment error:", error);
-            sweetAlert(
-              "error",
-              error.message ||
-                "An error occurred during payment. Please try again."
-            );
-          } finally {
-            paymentButton.disabled = false; // Re-enable the button
-            paymentButton.innerHTML = "Proceed"; // Reset button text
-          }
-        };
-        paymentButton.addEventListener("click", handlePayment);
-      } catch (error) {
-        console.error("Square initialization error:", error);
-      }
-    };
-
-    loadSquare();
-
-    // Cleanup
-    return () => {
-      if (paymentButton) {
-        paymentButton.replaceWith(paymentButton.cloneNode(true));
-      }
-      if (card) {
-        card
-          .destroy()
-          .catch((e) => console.error("Error cleaning up card:", e));
-      }
-      isCardInitialized.current = false;
+    script.onload = () => {
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://checkout.dev.clover.com/ui/?public_token=${CLOVER_PUBLIC_TOKEN}&merchant_id=${CLOVER_MID}&env=sandbox`;
+      iframe.width = "100%";
+      iframe.height = "400px";
+      iframe.style.border = "none";
+      iframe.onload = () => setIframeReady(true);
+      iframeRef.current.appendChild(iframe);
     };
   }, []);
 
-  const makePayment = async () => {
-    const response = await fetch("/api/order/new", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...orderData,
-        products: cartProducts,
-        paymentType: checkedValue,
-      }),
-    });
-    const result = await response.json();
-    console.log("result", result);
-    const { success, message } = result;
-    if (success) {
-      emptyCartItem();
-      setActiveStep(0);
-      setCompletedSteps([]);
-      setOrderData({
-        coupon: null,
-        // user: userData?.id,
-        firstName: "",
-        lastName: "",
-        email: "",
-        giftMessage: "",
-        deliveryFirstName: "",
-        deliveryLastName: "",
-        phone: "",
-        company: "",
-        country: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        paymentType: "",
-      });
-      sweetAlert("success", "Order Placed Successfully");
-      setTimeout(() => {
-        navigate("/Thankyou");
-      }, 1000);
-    } else {
-      sweetAlert("error", message);
+  // ✅ Listen for Clover token (only once)
+  useEffect(() => {
+    const listener = async (event) => {
+      if (!event.origin.includes("clover.com")) return;
+      if (event.data?.type === "token") {
+        const token = event.data.token;
+        console.log("✅ Received Clover token:", token);
+
+        try {
+          const response = await fetch("/api/order/charge", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...orderData,
+              products: cartProducts,
+              paymentType: "Credit Card",
+              token,
+            }),
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            sweetAlert("success", "Order Placed Successfully");
+            emptyCartItem();
+            setActiveStep(0);
+            setCompletedSteps([]);
+            setOrderData({});
+            setTimeout(() => navigate("/thankyou"), 1000);
+          } else {
+            sweetAlert("error", data.message || "Payment failed.");
+          }
+        } catch (error) {
+          console.error("Clover payment error:", error);
+          sweetAlert("error", "Payment failed. Please try again.");
+        }
+      }
+    };
+
+    window.addEventListener("message", listener);
+    return () => window.removeEventListener("message", listener);
+  }, []);
+
+  // ✅ Safely handle payment
+  const handlePayment = () => {
+    const iframe = iframeRef.current?.querySelector("iframe");
+    if (!iframe || !iframeReady) {
+      sweetAlert("error", "Payment form is still loading. Please wait a moment.");
+      return;
     }
+
+    iframe.contentWindow.postMessage({ type: "getToken" }, "*");
   };
 
   return (
-    <>
-      <div className="step-content payment-step">
-        <p className="info-form">
-          Select how you would like to pay for your order.
-        </p>
-        <ul>
-          <li>
-            <div className="radio-wrapper">
-              <input
-                type="radio"
-                name="payment-type"
-                id="del-0"
-                checked
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setCheckedValue("Credit Card");
-                  }
-                }}
-              />
-              <label htmlFor="del-0">
-                <FaCreditCard /> Credit Card
-              </label>
-              <br />
-              <div id="card-container"></div>
+    <div className="step-content payment-step">
+      <p className="info-form">Select how you would like to pay for your order.</p>
+      <ul>
+        <li>
+          <div className="radio-wrapper">
+            <input
+              type="radio"
+              name="payment-type"
+              id="del-0"
+              checked={checkedValue === "Credit Card"}
+              onChange={(e) =>
+                e.target.checked && setCheckedValue("Credit Card")
+              }
+            />
+            <label htmlFor="del-0">
+              <FaCreditCard /> Credit Card
+            </label>
+            <div ref={iframeRef} id="clover-container"></div>
+          </div>
+
+          {checkedValue === "Credit Card" && (
+            <div className="content">
+              <button
+                id="card-button"
+                onClick={handlePayment}
+                disabled={!iframeReady}
+                className="submit-btn"
+              >
+                {iframeReady ? "Proceed" : "Loading Clover..."}
+              </button>
             </div>
-            {checkedValue === "Credit Card" && (
-              <div className="content">
-                {/* <StripeForm /> */}
-                <button
-                  id="card-button"
-                  // onClick={makePayment}
-                  className="submit-btn"
-                >
-                  Proceed
-                </button>
-              </div>
-            )}
-          </li>
-          {/* <li>
-                        <div className="radio-wrapper">
-                            <input type="radio" name="payment-type" id="del-1"
-                                onChange={(e) => {
-                                    if (e.target.checked) {
-                                        setCheckedValue('G Pay')
-                                    }
-                                }} />
-                            <label htmlFor="del-1"><FaGoogle /> G Pay</label>
-                        </div>
-                        {checkedValue === 'G Pay' && <div className="content">
-                            <button onClick={makePayment} className='submit-btn'>Proceed</button>
-                        </div>}
-                    </li> */}
-        </ul>
-      </div>
-    </>
+          )}
+        </li>
+      </ul>
+    </div>
   );
 };
 
