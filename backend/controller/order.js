@@ -27,7 +27,20 @@ router.post("/calculate-tax", async (req, res) => {
   }
 });
 
-// ✅ Clover Hosted Checkout (Sandbox)
+// ✅ Get Clover Public Token (for frontend)
+router.get("/clover-config", (req, res) => {
+  console.log("Clover config requested");
+  console.log("Public Token:", CLOVER_SANDBOX_PUBLIC_TOKEN);
+  console.log("Merchant ID:", CLOVER_SANDBOX_MID);
+
+  return res.json({
+    success: true,
+    publicToken: CLOVER_SANDBOX_PUBLIC_TOKEN,
+    merchantId: CLOVER_SANDBOX_MID,
+  });
+});
+
+// ✅ Process Payment with Clover Token
 router.post("/charge", async (req, res) => {
   try {
     const {
@@ -50,13 +63,25 @@ router.post("/charge", async (req, res) => {
       coupon,
       amount,
       taxPrice,
+      cloverToken, // Token from Clover Elements
     } = req.body;
+
+    if (!cloverToken) {
+      console.error("No Clover token provided");
+      return res.json({
+        success: false,
+        message: "Payment token is required",
+      });
+    }
 
     const totalAmount = Math.round((amount + taxPrice) * 100);
 
-    console.log("Creating Clover Hosted Checkout for:", email, totalAmount);
+    console.log("Processing Clover payment:");
+    console.log("- Email:", email);
+    console.log("- Amount:", totalAmount, "(cents)");
+    console.log("- Token:", cloverToken.substring(0, 20) + "...");
 
-    // ✅ Create the order in your DB (before redirect)
+    // ✅ Create the order in your DB
     const creation = products
       .filter((item) => item.type === "letter")
       .map((item) => ({
@@ -69,8 +94,40 @@ router.post("/charge", async (req, res) => {
 
     const filteredProducts = products.filter((item) => item.type !== "letter");
 
+    // ✅ Charge the card using Clover Pay API
+    const chargeResponse = await axios.post(
+      `https://scl-sandbox.dev.clover.com/v1/charges`,
+      {
+        amount: totalAmount,
+        currency: "usd",
+        source: cloverToken,
+        description: `Order for ${firstName} ${lastName}`,
+        capture: true,
+        metadata: {
+          email,
+          orderId: `ORDER-${Date.now()}`,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${CLOVER_SANDBOX_PRIVATE_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const charge = chargeResponse.data;
+
+    if (!charge.id || charge.status !== "succeeded") {
+      return res.json({
+        success: false,
+        message: charge.outcome?.description || "Payment failed",
+      });
+    }
+
+    // ✅ Create order with successful payment info
     const order = await Order.create({
-      status: "pending",
+      status: "processing",
       user,
       products: filteredProducts.map((item) => ({
         product: item.id,
@@ -79,7 +136,9 @@ router.post("/charge", async (req, res) => {
       paymentinfo: {
         amount,
         paymentType: "CLOVER",
-        status: "pending",
+        status: "paid",
+        transactionId: charge.id,
+        chargeId: charge.id,
       },
       creation,
       firstName,
@@ -100,37 +159,19 @@ router.post("/charge", async (req, res) => {
       taxPrice,
     });
 
-    const checkoutResponse = await axios.post(
-      `https://scl-sandbox.dev.clover.com/v3/merchants/${CLOVER_SANDBOX_MID}/checkouts`,
-      {
-        order: {
-          amount: totalAmount,
-          currency: "usd",
-          description: `Order for ${firstName} ${lastName}`,
-        },
-        redirectUrl: `https://craigphotoletters.com/thankyou`,
-        cancelUrl: `https://craigphotoletters.com/checkout`,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${CLOVER_SANDBOX_PRIVATE_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const checkout = checkoutResponse.data;
-    const hostedCheckoutUrl = checkout._links["checkout-page"].href;
+    // ✅ Send confirmation email
+    const { subject, html } = generateOrderEmailBody(order);
+    await sendMail(email, subject, html);
 
     return res.json({
       success: true,
-      redirectUrl: hostedCheckoutUrl,
-      message: "Hosted Checkout created successfully",
+      message: "Payment successful",
       order,
+      orderId: order.orderId || order._id,
     });
   } catch (error) {
     console.error(
-      "Clover Hosted Checkout error:",
+      "Clover Payment error:",
       error.response?.data || error.message
     );
     return res.json({
@@ -138,7 +179,7 @@ router.post("/charge", async (req, res) => {
       message:
         error.response?.data?.error?.message ||
         error.message ||
-        "Hosted Checkout creation failed",
+        "Payment processing failed",
     });
   }
 });
