@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FaCreditCard } from "react-icons/fa6";
 import { CartContext } from "../context/Cart";
 import { useNavigate } from "react-router-dom";
@@ -15,14 +15,9 @@ const PaymentForm = ({
   const { emptyCartItem, cartProducts } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [cloverConfig, setCloverConfig] = useState(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [expMonth, setExpMonth] = useState("");
-  const [expYear, setExpYear] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [zipCode, setZipCode] = useState("");
   const navigate = useNavigate();
 
-  // Fetch Clover Config
+  // Fetch Clover Config on component mount
   useEffect(() => {
     const fetchConfig = async () => {
       try {
@@ -30,7 +25,7 @@ const PaymentForm = ({
         const data = await response.json();
         if (data.success) {
           setCloverConfig(data);
-          console.log("Clover config loaded");
+          console.log("✅ Clover config loaded");
         } else {
           sweetAlert("error", "Failed to load payment configuration");
         }
@@ -43,193 +38,114 @@ const PaymentForm = ({
     fetchConfig();
   }, []);
 
-  // Format card number with spaces
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || "";
-    const parts = [];
-
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-
-    if (parts.length) {
-      return parts.join(" ");
-    } else {
-      return value;
-    }
-  };
-
-  const handleCardNumberChange = (e) => {
-    const formatted = formatCardNumber(e.target.value);
-    if (formatted.replace(/\s/g, "").length <= 16) {
-      setCardNumber(formatted);
-    }
-  };
-
-  const handleExpMonthChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/gi, "");
-    if (value.length <= 2 && (value === "" || parseInt(value) <= 12)) {
-      setExpMonth(value);
-    }
-  };
-
-  const handleExpYearChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/gi, "");
-    if (value.length <= 4) {
-      setExpYear(value);
-    }
-  };
-
-  const handleCvvChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/gi, "");
-    if (value.length <= 4) {
-      setCvv(value);
-    }
-  };
-
-  const handleZipCodeChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/gi, "");
-    if (value.length <= 5) {
-      setZipCode(value);
-    }
-  };
-
-  const validateCardDetails = () => {
-    const cardNum = cardNumber.replace(/\s/g, "");
-
-    if (cardNum.length < 13 || cardNum.length > 19) {
-      sweetAlert("error", "Please enter a valid card number");
-      return false;
-    }
-
-    if (!expMonth || parseInt(expMonth) < 1 || parseInt(expMonth) > 12) {
-      sweetAlert("error", "Please enter a valid expiration month (01-12)");
-      return false;
-    }
-
-    if (!expYear || expYear.length !== 4) {
-      sweetAlert("error", "Please enter a valid 4-digit year");
-      return false;
-    }
-
-    const currentYear = new Date().getFullYear();
-    if (parseInt(expYear) < currentYear) {
-      sweetAlert("error", "Card has expired");
-      return false;
-    }
-
-    if (cvv.length < 3) {
-      sweetAlert("error", "Please enter a valid CVV");
-      return false;
-    }
-
-    if (zipCode.length !== 5) {
-      sweetAlert("error", "Please enter a valid 5-digit ZIP code");
-      return false;
-    }
-
-    return true;
-  };
-
-  const createCloverToken = async () => {
-    const cardNum = cardNumber.replace(/\s/g, "");
-
-    try {
-      const tokenResponse = await fetch(
-        "https://token-sandbox.dev.clover.com/v1/tokens",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cloverConfig.publicToken}`,
-          },
-          body: JSON.stringify({
-            card: {
-              number: cardNum,
-              exp_month: expMonth.padStart(2, "0"),
-              exp_year: expYear,
-              cvv: cvv,
-              brand: detectCardBrand(cardNum),
-            },
-          }),
-        }
-      );
-
-      const tokenData = await tokenResponse.json();
-
-      if (!tokenResponse.ok) {
-        console.error("Token creation failed:", tokenData);
-        throw new Error(tokenData.message || "Failed to create payment token");
-      }
-
-      return tokenData.id;
-    } catch (error) {
-      console.error("Token creation error:", error);
-      throw error;
-    }
-  };
-
-  const detectCardBrand = (cardNum) => {
-    if (cardNum.startsWith("4")) return "VISA";
-    if (cardNum.startsWith("5")) return "MASTERCARD";
-    if (cardNum.startsWith("6011")) return "DISCOVER";
-    if (cardNum.startsWith("34") || cardNum.startsWith("37")) return "AMEX";
-    return "VISA";
-  };
-
+  // Handle Payment - Redirect to Clover Hosted Checkout
   const handlePayment = async () => {
-    if (!cloverConfig) {
-      sweetAlert("error", "Payment system not ready. Please try again.");
+    // Validate cart and order data
+    if (!cartProducts || cartProducts.length === 0) {
+      sweetAlert("error", "Your cart is empty.");
       return;
     }
 
-    if (!validateCardDetails()) {
+    if (!orderData || !orderData.amount || !orderData.email) {
+      sweetAlert("error", "Missing required order information.");
+      return;
+    }
+
+    if (!orderData.firstName || !orderData.lastName) {
+      sweetAlert("error", "Please provide your name.");
+      return;
+    }
+
+    if (!orderData.deliveryFirstName || !orderData.deliveryLastName) {
+      sweetAlert("error", "Please provide delivery name.");
+      return;
+    }
+
+    if (
+      !orderData.address ||
+      !orderData.city ||
+      !orderData.state ||
+      !orderData.zipCode
+    ) {
+      sweetAlert("error", "Please provide complete delivery address.");
       return;
     }
 
     try {
       setLoading(true);
-      console.log("Creating payment token...");
 
-      // Create Clover token
-      const token = await createCloverToken();
-      console.log("Token created successfully");
+      console.log("=== CHECKOUT DEBUG INFO ===");
+      console.log("Cart products:", JSON.stringify(cartProducts, null, 2));
+      console.log("Order data:", JSON.stringify(orderData, null, 2));
 
-      // Send payment to backend
-      const response = await fetch("/api/order/charge", {
+      // Check if cart products have the required _id field
+      const hasIds = cartProducts.every((item) => item._id || item.id);
+      if (!hasIds) {
+        console.error("❌ Some products are missing _id or id field!");
+        sweetAlert(
+          "error",
+          "Cart data is incomplete. Please refresh and try again."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Prepare the request payload
+      const checkoutPayload = {
+        ...orderData,
+        products: cartProducts,
+        paymentType: "CLOVER_HOSTED_CHECKOUT",
+      };
+
+      console.log(
+        "Checkout payload:",
+        JSON.stringify(checkoutPayload, null, 2)
+      );
+      console.log("=== END DEBUG INFO ===");
+
+      // Call backend to create Clover Hosted Checkout session
+      const response = await fetch("/api/order/create-checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...orderData,
-          products: cartProducts,
-          paymentType: "Credit Card",
-          cloverToken: token,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(checkoutPayload),
       });
 
       const data = await response.json();
-      console.log("Payment response:", data);
+      console.log("Checkout Response:", data);
 
-      if (data.success) {
-        sweetAlert("success", "Payment successful!");
-        emptyCartItem();
+      if (data.success && data.checkoutUrl) {
+        // Show success message
+        sweetAlert("success", "Redirecting to secure payment page...");
 
-        // Navigate to thank you page
-        navigate("/thankyou", {
-          state: { orderId: data.orderId, order: data.order },
-        });
+        // Small delay to show the message
+        setTimeout(() => {
+          // Redirect to Clover's hosted checkout page
+          window.location.href = data.checkoutUrl;
+        }, 1000);
       } else {
-        sweetAlert(
-          "error",
-          data.message || "Payment failed. Please try again."
-        );
+        // Show detailed error if available
+        let errorMessage = data.message || "Failed to create checkout session.";
+
+        if (data.validationErrors && data.validationErrors.length > 0) {
+          errorMessage += "\n\nValidation errors:\n";
+          errorMessage += data.validationErrors
+            .map((err) => `- ${err.field}: ${err.message}`)
+            .join("\n");
+        }
+
+        if (data.details) {
+          console.error("Error details:", data.details);
+        }
+
+        console.error("Checkout error details:", data);
+        sweetAlert("error", errorMessage);
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Payment Error:", error);
-      sweetAlert("error", "Payment failed: " + error.message);
-    } finally {
+    } catch (err) {
+      console.error("Payment initiation failed:", err);
+      sweetAlert("error", "Error initiating payment. Please try again.");
       setLoading(false);
     }
   };
@@ -239,6 +155,7 @@ const PaymentForm = ({
       <p className="info-form">
         Select how you would like to pay for your order.
       </p>
+
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li style={{ marginBottom: "20px" }}>
           <div className="radio-wrapper">
@@ -252,7 +169,7 @@ const PaymentForm = ({
               }
             />
             <label htmlFor="del-0">
-              <FaCreditCard /> Credit Card
+              <FaCreditCard /> Credit Card (Secure Checkout)
             </label>
           </div>
 
@@ -261,251 +178,170 @@ const PaymentForm = ({
               className="payment-content-wrapper"
               style={{
                 marginTop: "20px",
-                display: "block !important",
-                visibility: "visible !important",
-                opacity: "1 !important",
-                position: "relative",
-                zIndex: 1,
+                padding: "20px",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                backgroundColor: "#fafafa",
               }}
             >
-              <div style={{ marginBottom: "16px" }}>
-                <label
-                  htmlFor="card-number-input"
+              {/* Information Box */}
+              <div
+                style={{
+                  borderLeft: "4px solid #4CAF50",
+                  paddingLeft: "15px",
+                  marginBottom: "20px",
+                  backgroundColor: "#f1f8f4",
+                  padding: "15px",
+                  borderRadius: "4px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 10px 0", color: "#2e7d32" }}>
+                  🔒 Secure Payment
+                </h4>
+                <p style={{ margin: 0, color: "#555", fontSize: "14px" }}>
+                  You will be redirected to Clover's secure payment page to
+                  complete your transaction. Your card details are never stored
+                  on our servers.
+                </p>
+              </div>
+
+              {/* Order Summary */}
+              {orderData && (
+                <div
                   style={{
-                    display: "block",
-                    marginBottom: "8px",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#333",
+                    backgroundColor: "#fff",
+                    padding: "15px",
+                    borderRadius: "4px",
+                    marginBottom: "20px",
+                    border: "1px solid #e0e0e0",
                   }}
                 >
-                  Card Number *
-                </label>
-                <input
-                  id="card-number-input"
-                  type="text"
-                  placeholder="4111 1111 1111 1111"
-                  value={cardNumber}
-                  onChange={handleCardNumberChange}
-                  autoComplete="cc-number"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                    boxSizing: "border-box",
-                    display: "block",
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "16px",
-                  marginBottom: "16px",
-                }}
-              >
-                <div>
-                  <label
-                    htmlFor="exp-month-input"
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    Exp Month *
-                  </label>
-                  <input
-                    id="exp-month-input"
-                    type="text"
-                    placeholder="MM"
-                    value={expMonth}
-                    onChange={handleExpMonthChange}
-                    autoComplete="cc-exp-month"
-                    maxLength="2"
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      boxSizing: "border-box",
-                      display: "block",
-                    }}
-                  />
+                  <h4 style={{ margin: "0 0 10px 0", color: "#333" }}>
+                    Order Summary
+                  </h4>
+                  <div style={{ fontSize: "14px", color: "#666" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <span>Subtotal:</span>
+                      <span>
+                        $
+                        {(orderData.amount - (orderData.taxPrice || 0)).toFixed(
+                          2
+                        )}
+                      </span>
+                    </div>
+                    {orderData.taxPrice > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <span>Tax:</span>
+                        <span>${orderData.taxPrice.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginTop: "12px",
+                        paddingTop: "12px",
+                        borderTop: "2px solid #e0e0e0",
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                        color: "#333",
+                      }}
+                    >
+                      <span>Total:</span>
+                      <span>${orderData.amount.toFixed(2)}</span>
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                <div>
-                  <label
-                    htmlFor="exp-year-input"
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    Exp Year *
-                  </label>
-                  <input
-                    id="exp-year-input"
-                    type="text"
-                    placeholder="YYYY"
-                    value={expYear}
-                    onChange={handleExpYearChange}
-                    autoComplete="cc-exp-year"
-                    maxLength="4"
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      boxSizing: "border-box",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "16px",
-                  marginBottom: "20px",
-                }}
-              >
-                <div>
-                  <label
-                    htmlFor="cvv-input"
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    CVV *
-                  </label>
-                  <input
-                    id="cvv-input"
-                    type="text"
-                    placeholder="123"
-                    value={cvv}
-                    onChange={handleCvvChange}
-                    autoComplete="cc-csc"
-                    maxLength="4"
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      boxSizing: "border-box",
-                      display: "block",
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="zip-input"
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    ZIP Code *
-                  </label>
-                  <input
-                    id="zip-input"
-                    type="text"
-                    placeholder="12345"
-                    value={zipCode}
-                    onChange={handleZipCodeChange}
-                    autoComplete="postal-code"
-                    maxLength="5"
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      boxSizing: "border-box",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              </div>
-
+              {/* Payment Button */}
               <button
                 onClick={handlePayment}
                 disabled={loading}
                 className="submit-btn"
                 style={{
                   width: "100%",
-                  padding: "14px",
-                  backgroundColor: loading ? "#ccc" : "#ff9800",
+                  padding: "16px",
+                  backgroundColor: loading ? "#ccc" : "#4CAF50",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
                   fontSize: "16px",
                   fontWeight: "600",
                   cursor: loading ? "not-allowed" : "pointer",
-                  transition: "background-color 0.3s",
-                  display: "block",
-                  boxSizing: "border-box",
+                  transition: "all 0.3s ease",
+                  boxShadow: loading ? "none" : "0 2px 4px rgba(0,0,0,0.1)",
+                }}
+                onMouseOver={(e) => {
+                  if (!loading) {
+                    e.target.style.backgroundColor = "#45a049";
+                    e.target.style.transform = "translateY(-1px)";
+                    e.target.style.boxShadow = "0 4px 8px rgba(0,0,0,0.15)";
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!loading) {
+                    e.target.style.backgroundColor = "#4CAF50";
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                  }
                 }}
               >
-                {loading ? "Processing Payment..." : "Pay Now"}
+                {loading ? (
+                  <>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaCreditCard style={{ marginRight: "8px" }} />
+                    Proceed to Secure Payment
+                  </>
+                )}
               </button>
 
+              {/* Security Notice */}
               <div
                 style={{
                   marginTop: "16px",
                   padding: "12px",
-                  backgroundColor: "#f8f9fa",
+                  backgroundColor: "#fff3cd",
                   borderRadius: "4px",
                   fontSize: "12px",
-                  color: "#666",
-                  display: "block",
+                  color: "#856404",
+                  border: "1px solid #ffeaa7",
                 }}
               >
-                <strong>Test Cards (Sandbox):</strong>
-                <div style={{ marginTop: "8px", lineHeight: "1.6" }}>
-                  • Visa: 4111 1111 1111 1111
-                  <br />
-                  • Mastercard: 5555 5555 5554 4444
-                  <br />
-                  • Discover: 6011 3610 0000 6668
-                  <br />
-                  Use any future date, CVV: 123, ZIP: 12345
-                </div>
+                <strong>🔐 Security Note:</strong> You'll be redirected to
+                Clover's PCI-compliant payment page. All transactions are
+                encrypted and secure.
               </div>
 
-              <p
+              {/* Accepted Cards */}
+              <div
                 style={{
                   marginTop: "12px",
-                  fontSize: "12px",
-                  color: "#666",
                   textAlign: "center",
-                  display: "block",
+                  fontSize: "11px",
+                  color: "#999",
                 }}
               >
-                🔒 Your payment is secure and encrypted
-              </p>
+                <p style={{ margin: "8px 0" }}>We accept:</p>
+                <p style={{ margin: "4px 0" }}>
+                  💳 Visa • Mastercard • American Express • Discover
+                </p>
+              </div>
             </div>
           )}
         </li>
