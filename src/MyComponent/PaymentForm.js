@@ -137,25 +137,19 @@ const PaymentForm = ({
     const cardNum = cardNumber.replace(/\s/g, "");
 
     try {
-      const tokenResponse = await fetch(
-        "https://token-sandbox.dev.clover.com/v1/tokens",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cloverConfig.publicToken}`,
+      const tokenResponse = await fetch("/api/order/create-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          card: {
+            number: cardNum,
+            exp_month: expMonth.padStart(2, "0"),
+            exp_year: expYear,
+            cvv: cvv,
+            zip: "11111", // optional, but Clover accepts it
           },
-          body: JSON.stringify({
-            card: {
-              number: cardNum,
-              exp_month: expMonth.padStart(2, "0"),
-              exp_year: expYear,
-              cvv: cvv,
-              brand: detectCardBrand(cardNum),
-            },
-          }),
-        }
-      );
+        }),
+      });
 
       const tokenData = await tokenResponse.json();
 

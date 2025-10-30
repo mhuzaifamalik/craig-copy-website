@@ -29,15 +29,39 @@ router.post("/calculate-tax", async (req, res) => {
 
 // ✅ Get Clover Public Token (for frontend)
 router.get("/clover-config", (req, res) => {
-  console.log("Clover config requested");
-  console.log("Public Token:", CLOVER_SANDBOX_PUBLIC_TOKEN);
-  console.log("Merchant ID:", CLOVER_SANDBOX_MID);
-
   return res.json({
     success: true,
     publicToken: CLOVER_SANDBOX_PUBLIC_TOKEN,
     merchantId: CLOVER_SANDBOX_MID,
   });
+});
+
+// ✅ Create Clover Token (proxy for frontend)
+router.post("/create-token", async (req, res) => {
+  try {
+    const response = await axios.post(
+      "https://token-sandbox.dev.clover.com/v1/tokens",
+      req.body, // expects { card: { number, exp_month, exp_year, cvv, zip } }
+      {
+        headers: {
+          Authorization: `Bearer ${CLOVER_SANDBOX_PUBLIC_TOKEN}`, // ✅ public key only
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error(
+      "Clover Token Proxy Error:",
+      error.response?.data || error.message
+    );
+    return res.status(error.response?.status || 500).json({
+      success: false,
+      message:
+        error.response?.data?.error?.message || "Failed to create Clover token",
+    });
+  }
 });
 
 // ✅ Process Payment with Clover Token
@@ -96,17 +120,18 @@ router.post("/charge", async (req, res) => {
 
     // ✅ Charge the card using Clover Pay API
     const chargeResponse = await axios.post(
-      `https://scl-sandbox.dev.clover.com/v1/charges`,
+      "https://scl-sandbox.dev.clover.com/v1/charges",
       {
-        amount: totalAmount,
+        merchant_id: CLOVER_SANDBOX_MID, // ✅ Required
+        amount: Math.round(totalAmount), // must be integer (in cents)
         currency: "usd",
-        source: cloverToken,
+        source: {
+          type: "token", // ✅ Clover requires this
+          id: cloverToken, // e.g. "fake_token_visa" or real token ID from Clover.js
+        },
         description: `Order for ${firstName} ${lastName}`,
         capture: true,
-        metadata: {
-          email,
-          orderId: `ORDER-${Date.now()}`,
-        },
+        external_reference_id: `ORDER-${Date.now()}`, // ✅ valid key, replaces metadata
       },
       {
         headers: {
