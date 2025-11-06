@@ -148,13 +148,13 @@ router.post("/charge", async (req, res) => {
     console.log("- Amount:", totalAmount, "(cents)");
     console.log("- Token:", cloverToken.substring(0, 20) + "...");
 
-    // Prepare order data
+    // Prepare order data - FIX: Add validation and default values
     const creation = products
       .filter((item) => item.type === "letter")
       .map((item) => ({
-        items: item.id.map((id, ind) => ({
+        items: (item.id || []).map((id, ind) => ({
           letter: id,
-          imageIndex: item.items[ind],
+          imageIndex: (item.items || [])[ind],
         })),
         quantity: item.quantity,
       }));
@@ -167,7 +167,7 @@ router.post("/charge", async (req, res) => {
       {
         amount: totalAmount,
         currency: "usd",
-        source: cloverToken, // This should be the token string like "clv_1TSTSiNJH5eZYGRMKF4PyNut"
+        source: cloverToken,
         description: `Order for ${firstName} ${lastName}`,
         capture: true,
         receipt_email: email,
@@ -244,17 +244,40 @@ router.post("/charge", async (req, res) => {
       taxPrice,
     });
 
-    // Send confirmation email
-    const { subject, html } = generateOrderEmailBody(order);
-    await sendMail(email, subject, html);
+    // FIX: Populate order data before generating email (like old API)
+    const orderObj = await Order.findById(order._id)
+      .populate("user")
+      .populate("products.product")
+      .populate("creation.items.letter")
+      .populate("coupon");
+
+    // FIX: Send confirmation email to both customer and admin (like old API)
+    const { subject, html } = generateOrderEmailBody(orderObj);
+
+    try {
+      // Send confirmation to the customer
+      await sendMail(email, subject, html);
+
+      // Send notification to admin as well
+      await sendMail(
+        "orders@craigphotoletters.com",
+        `New Order from ${firstName} ${lastName}`,
+        html
+      );
+
+      console.log("Emails sent to customer and admin successfully");
+    } catch (error) {
+      console.error("Error sending emails:", error.message);
+      // Don't fail the order if email fails, just log it
+    }
 
     console.log("Order created successfully:", order._id);
 
     return res.json({
       success: true,
       message: "Payment successful",
-      order,
-      orderId: order.orderId || order._id,
+      order: orderObj, // Return populated order
+      orderId: orderObj.orderId || orderObj._id,
       chargeId: charge.id,
     });
   } catch (error) {
