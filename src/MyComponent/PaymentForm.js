@@ -158,7 +158,7 @@ const PaymentForm = ({
         throw new Error(tokenData.message || "Failed to create payment token");
       }
 
-      return tokenData.id;
+      return tokenData.token;
     } catch (error) {
       console.error("Token creation error:", error);
       throw error;
