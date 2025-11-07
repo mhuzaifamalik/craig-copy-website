@@ -165,14 +165,6 @@ const PaymentForm = ({
     }
   };
 
-  const detectCardBrand = (cardNum) => {
-    if (cardNum.startsWith("4")) return "VISA";
-    if (cardNum.startsWith("5")) return "MASTERCARD";
-    if (cardNum.startsWith("6011")) return "DISCOVER";
-    if (cardNum.startsWith("34") || cardNum.startsWith("37")) return "AMEX";
-    return "VISA";
-  };
-
   const handlePayment = async () => {
     if (!cloverConfig) {
       sweetAlert("error", "Payment system not ready. Please try again.");
@@ -346,7 +338,7 @@ const PaymentForm = ({
                       color: "#333",
                     }}
                   >
-                    Exp Year *
+                    Exp Year *``
                   </label>
                   <input
                     id="exp-year-input"
@@ -477,7 +469,7 @@ const PaymentForm = ({
                   display: "block",
                 }}
               >
-                <strong>Test Cards (Sandbox):</strong>
+                {/* <strong>Test Cards (Sandbox):</strong>
                 <div style={{ marginTop: "8px", lineHeight: "1.6" }}>
                   • Visa: 4111 1111 1111 1111
                   <br />
@@ -486,7 +478,7 @@ const PaymentForm = ({
                   • Discover: 6011 3610 0000 6668
                   <br />
                   Use any future date, CVV: 123, ZIP: 12345
-                </div>
+                </div> */}
               </div>
 
               <p

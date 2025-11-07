@@ -4,36 +4,56 @@
 <!-- Start right Content here -->
 <!-- ==================================================== -->
 <div>
-
   <div class="page-content">
-
     <!-- Start Container -->
     <div class="container-xxl">
-
       <div class="row">
         <div class="col-xl-9 col-lg-8">
           <div class="row">
             <div class="col-lg-12">
               <div class="card">
                 <div class="card-body">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                  <div
+                    class="d-flex flex-wrap align-items-center justify-content-between gap-2"
+                  >
                     <div>
-                      <h4 class="fw-medium text-dark d-flex align-items-center gap-2"><%- order.orderId %>
+                      <h4
+                        class="fw-medium text-dark d-flex align-items-center gap-2"
+                      >
+                        <%- order.orderId %>
                         <!-- <span class="badge bg-success-subtle text-success  px-2 py-1 fs-13">Paid</span> -->
-                        <span style="text-transform: capitalize;" class="border border-warning text-warning fs-13 px-2 py-1 rounded"><%- order.status %></span>
+                        <span
+                          style="text-transform: capitalize"
+                          class="border border-warning text-warning fs-13 px-2 py-1 rounded"
+                          ><%- order.status %></span
+                        >
                       </h4>
-                      <p class="mb-0"><%- new Date(order.createdAt).toDateString() %></p>
+                      <p class="mb-0">
+                        <%- new Date(order.createdAt).toDateString() %>
+                      </p>
                     </div>
                     <div class="d-flex gap-2">
                       <form action="/api/order/update" method="POST">
-                        <input type="hidden" name="orderId" value="<%- order.orderId %>">
-                        <input type="hidden" name="status" value="cancelled">
-                        <button type="submit" class="btn btn-outline-secondary">Cancelled</button>
+                        <input
+                          type="hidden"
+                          name="orderId"
+                          value="<%- order.orderId %>"
+                        />
+                        <input type="hidden" name="status" value="cancelled" />
+                        <button type="submit" class="btn btn-outline-secondary">
+                          Cancelled
+                        </button>
                       </form>
                       <form action="/api/order/update" method="POST">
-                        <input type="hidden" name="orderId" value="<%- order.orderId %>">
-                        <input type="hidden" name="status" value="refunded">
-                        <button type="submit" class="btn btn-outline-danger">Refund</button>
+                        <input
+                          type="hidden"
+                          name="orderId"
+                          value="<%- order.orderId %>"
+                        />
+                        <input type="hidden" name="status" value="refunded" />
+                        <button type="submit" class="btn btn-outline-danger">
+                          Refund
+                        </button>
                       </form>
                     </div>
                   </div>
@@ -86,28 +106,42 @@
                 </div> -->
                   <div class="card-footer bg-light-subtle gap-2">
                     <form action="/api/order/update" method="post">
-                      <input type="hidden" name="orderId" value="<%- order.orderId %>">
-                      <input type="hidden" name="status" value="completed">
-                      <button type="submit" class="btn btn-primary">Make As Completed</button>
+                      <input
+                        type="hidden"
+                        name="orderId"
+                        value="<%- order.orderId %>"
+                      />
+                      <input type="hidden" name="status" value="completed" />
+                      <button type="submit" class="btn btn-primary">
+                        Make As Completed
+                      </button>
                     </form>
                     <% if(order.paymentinfo) { %>
-                      <hr>
-                      <div>
-                        <h4 class="fw-medium text-dark">Payment Information</h4>
-                        <p class="mb-0">
-                          <strong>Payment Id:</strong>
-                          <button class="btn btn-link" title="Copy Payment ID" type="button" onclick="((btn) => {
+                    <hr />
+                    <div>
+                      <h4 class="fw-medium text-dark">Payment Information</h4>
+                      <p class="mb-0">
+                        <strong>Payment Id:</strong>
+                        <button
+                          class="btn btn-link"
+                          title="Copy Payment ID"
+                          type="button"
+                          onclick="((btn) => {
                             navigator.clipboard.writeText('<%- order.paymentinfo?.paymentId %>')
                             btn.innerHTML = 'Payment ID Copied!';
                             setTimeout(() => {
                               btn.innerHTML = '<%- order.paymentinfo?.paymentId %>';
                             }, 2000);
-                          })(this)">
-                            <%- order.paymentinfo?.paymentId %>
-                          </button>
-                        </p>
-                        <p class="mb-0"><strong>Payment Status:</strong> <%- order.paymentinfo?.status %></p>
-                      </div>
+                          })(this)"
+                        >
+                          <%- order.paymentinfo?.paymentId %>
+                        </button>
+                      </p>
+                      <p class="mb-0">
+                        <strong>Payment Status:</strong> <%-
+                        order.paymentinfo?.status %>
+                      </p>
+                    </div>
                     <% } %>
                   </div>
                 </div>
@@ -120,7 +154,9 @@
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table align-middle mb-0 table-hover table-centered">
+                      <table
+                        class="table align-middle mb-0 table-hover table-centered"
+                      >
                         <thead class="bg-light-subtle border-bottom">
                           <tr>
                             <th>Product</th>
@@ -130,22 +166,30 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <% order.products.forEach(item => { %>
-                          <% product = item.product %>
+                          <% order.products.forEach(item => { %> <% product =
+                          item.product %>
                           <tr>
                             <td>
                               <div class="d-flex align-items-center gap-2">
-                                <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
-                                  <img src="<%- product.image %>" alt="<%- product.title %>" class="avatar-md">
+                                <div
+                                  class="rounded bg-light avatar-md d-flex align-items-center justify-content-center"
+                                >
+                                  <img
+                                    src="<%- product.image %>"
+                                    alt="<%- product.title %>"
+                                    class="avatar-md"
+                                  />
                                 </div>
                                 <div>
-                                  <span class="text-dark fw-medium fs-15"><%- product.title %></span>
+                                  <span class="text-dark fw-medium fs-15"
+                                    ><%- product.title %></span
+                                  >
                                 </div>
                               </div>
                             </td>
                             <td>$<%- product.price %></td>
                             <td><%- item.quantity %></td>
-                            <td> $<%- item.quantity * product.price %></td>
+                            <td>$<%- item.quantity * product.price %></td>
                           </tr>
                           <% }) %>
                         </tbody>
@@ -153,8 +197,7 @@
                     </div>
                   </div>
                 </div>
-                <% } %>
-                <% if(order.creation.length) { %>
+                <% } %> <% if(order.creation.length) { %>
                 <div class="card">
                   <div class="card-header">
                     <h4 class="card-title">Creation</h4>
@@ -163,9 +206,14 @@
                     <% order.creation.forEach((item, index) => { %>
                     <div class="creation-item">
                       <div class="row image-group g-4">
-                        <% item.items.forEach(({letter,imageIndex}, index) => { %>
+                        <% item.items.forEach(({letter,imageIndex}, index) => {
+                        %>
                         <div class="col-3">
-                          <img class="img-fluid" src="<%- letter.images[imageIndex] %>" alt="">
+                          <img
+                            class="img-fluid"
+                            src="<%- letter.images[imageIndex] %>"
+                            alt=""
+                          />
                           <%- letter.images[imageIndex].split('/').pop() %>
                         </div>
                         <% }) %>
@@ -228,24 +276,17 @@
               </div> -->
             </div>
           </div>
-
         </div>
         <div class="col-xl-3 col-lg-4">
           <div class="card">
             <div class="card-header">
               <h4 class="card-title">Order Summary</h4>
             </div>
-            <% 
-       
-       var discount = 0;
-       if (order.coupon) {
-           if (order.coupon.discountType === 'fixed') {
-               discount = Math.min(order.coupon.discount, order.amount);
-           } else if (order.coupon.discountType === 'percentage') {
-               discount = (order.coupon.discount / 100) * order.amount;
-           }
-       }
-       %>
+            <% var discount = 0; if (order.coupon) { if
+            (order.coupon.discountType === 'fixed') { discount =
+            Math.min(order.coupon.discount, order.amount); } else if
+            (order.coupon.discountType === 'percentage') { discount =
+            (order.coupon.discount / 100) * order.amount; } } %>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table mb-0">
@@ -253,48 +294,74 @@
                     <tr>
                       <td class="px-0">
                         <p class="d-flex mb-0 align-items-center gap-1">
-                          <iconify-icon icon="solar:clipboard-text-broken"></iconify-icon> Sub Total :
+                          <iconify-icon
+                            icon="solar:clipboard-text-broken"
+                          ></iconify-icon>
+                          Sub Total :
                         </p>
                       </td>
-                      <td class="text-end text-dark fw-medium px-0">$<%- order.amount?.toFixed(2) %></td>
+                      <td class="text-end text-dark fw-medium px-0">
+                        $<%- order.amount?.toFixed(2) %>
+                      </td>
                     </tr>
                     <tr>
                       <td class="px-0">
                         <p class="d-flex mb-0 align-items-center gap-1">
-                          <iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon> Discount <%- order.coupon ? `(${order.coupon.couponCode})` : '' %> :
+                          <iconify-icon
+                            icon="solar:ticket-broken"
+                            class="align-middle"
+                          ></iconify-icon>
+                          Discount <%- order.coupon ?
+                          `(${order.coupon.couponCode})` : '' %> :
                         </p>
                       </td>
-                      <td class="text-end text-dark fw-medium px-0">-$<%- order.discount?.toFixed(2) %></td>
+                      <td class="text-end text-dark fw-medium px-0">
+                        -$<%- order.discount?.toFixed(2) %>
+                      </td>
                     </tr>
                     <tr>
                       <td class="px-0">
                         <p class="d-flex mb-0 align-items-center gap-1">
-                          <iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge :
+                          <iconify-icon
+                            icon="solar:kick-scooter-broken"
+                            class="align-middle"
+                          ></iconify-icon>
+                          Delivery Charge :
                         </p>
                       </td>
-                      <td class="text-end text-dark fw-medium px-0">$<%- order.shippingPrice?.toFixed(2) %></td>
+                      <td class="text-end text-dark fw-medium px-0">
+                        $<%- order.shippingPrice?.toFixed(2) %>
+                      </td>
                     </tr>
                     <tr>
                       <td class="px-0">
                         <p class="d-flex mb-0 align-items-center gap-1">
-                          <iconify-icon icon="solar:calculator-minimalistic-broken" class="align-middle"></iconify-icon> Tax :
+                          <iconify-icon
+                            icon="solar:calculator-minimalistic-broken"
+                            class="align-middle"
+                          ></iconify-icon>
+                          Tax :
                         </p>
                       </td>
-                      <td class="text-end text-dark fw-medium px-0">$<%- order.taxPrice?.toFixed(2) %></td>
+                      <td class="text-end text-dark fw-medium px-0">
+                        $<%- order.taxPrice?.toFixed(2) %>
+                      </td>
                     </tr>
-
                   </tbody>
                 </table>
               </div>
             </div>
-            <div class="card-footer d-flex align-items-center justify-content-between bg-light-subtle">
+            <div
+              class="card-footer d-flex align-items-center justify-content-between bg-light-subtle"
+            >
               <div>
                 <p class="fw-medium text-dark mb-0">Total Amount</p>
               </div>
               <div>
-                <p class="fw-medium text-dark mb-0">$<%- order.amountPaid?.toFixed(2) %></p>
+                <p class="fw-medium text-dark mb-0">
+                  $<%- order.amountPaid?.toFixed(2) %>
+                </p>
               </div>
-
             </div>
           </div>
           <!-- <div class="card">
@@ -326,36 +393,65 @@
             <div class="card-body">
               <div class="d-flex align-items-center gap-2">
                 <div>
-                  <p class="mb-1"><%- order.firstName %> <%- order.lastName %></p>
-                  <a href="mailto:<%- order.email %>" class="link-primary fw-medium"><%- order.email %></a>
+                  <p class="mb-1">
+                    <%- order.firstName %> <%- order.lastName %>
+                  </p>
+                  <a
+                    href="mailto:<%- order.email %>"
+                    class="link-primary fw-medium"
+                    ><%- order.email %></a
+                  >
                 </div>
               </div>
               <div class="d-flex justify-content-between mt-3">
                 <h5 class="">Contact Number</h5>
               </div>
-              <p class="mb-1"><a href="tel:<%- order.phone %>" class="link-primary fw-medium"><%- order.phone %></a></p>
+              <p class="mb-1">
+                <a href="tel:<%- order.phone %>" class="link-primary fw-medium"
+                  ><%- order.phone %></a
+                >
+              </p>
 
               <div class="d-flex justify-content-between mt-3">
                 <h5 class="">Shipping Address</h5>
               </div>
 
               <div>
-                <p class="mb-1"><%- order.deliveryFirstName %> <%- order.deliveryLastName %></p>
+                <p class="mb-1">
+                  <%- order.deliveryFirstName %> <%- order.deliveryLastName %>
+                </p>
                 <p class="mb-1"><%- order.address %></p>
-                <p class="mb-1"><%- order.city %>, <%- order.state %> <%- order.zipCode %></p>
+                <p class="mb-1">
+                  <%- order.city %>, <%- order.state %> <%- order.zipCode %>
+                </p>
                 <p class="mb-1"><%- order.country %></p>
-                <p class="mb-1"><a href="tel:<%- order.phone %>" class="link-primary fw-medium"><%- order.phone %></a></p>
+                <p class="mb-1">
+                  <a
+                    href="tel:<%- order.phone %>"
+                    class="link-primary fw-medium"
+                    ><%- order.phone %></a
+                  >
+                </p>
               </div>
+              <% if (order.giftMessage && order.giftMessage.trim() !== "") { %>
+              <div class="d-flex justify-content-between mt-3">
+                <h5 class="">Gift Message</h5>
+              </div>
+
+              <div>
+                <p class="mb-1">
+                  <a class="link-primary fw-medium"><%- order.giftMessage %></a>
+                </p>
+              </div>
+              <% } %>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
   <!-- ==================================================== -->
   <!-- End Page Content -->
   <!-- ==================================================== -->
-
 </div>
 <%- include('./partials/footer') %>

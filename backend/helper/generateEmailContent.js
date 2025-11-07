@@ -15,136 +15,159 @@ const generateOrderEmailBody = (order) => {
     zipCode,
     country,
     amount,
+    giftMessage,
     shippingPrice,
     taxPrice,
     amountPaid,
     createdAt,
   } = order;
+
   const subject = `Order Confirmation - ${orderId}`;
+
   const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.5;">
-  <!-- Header -->
-  <div style="text-align: center; padding: 20px 0; border-bottom: 1px solid #eeeeee;">
-    <img src="http://craigphotoletters.com/admin/assets/images/logo-light.png" alt="Company Logo" style="max-width: 180px;">
-    <h1 style="color: #222222; margin: 15px 0 10px 0; font-size: 24px;">Thank You For Your Order!</h1>
-    <p style="margin: 0; color: #666666;">Your order #${orderId} has been confirmed</p>
-  </div>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.5;">
+    <!-- Header -->
+    <div style="text-align: center; padding: 20px 0; border-bottom: 1px solid #eeeeee;">
+      <img src="http://craigphotoletters.com/admin/assets/images/logo-light.png" alt="Company Logo" style="max-width: 180px;">
+      <h1 style="color: #222222; margin: 15px 0 10px 0; font-size: 24px;">Thank You For Your Order!</h1>
+      <p style="margin: 0; color: #666666;">Your order #${orderId} has been confirmed</p>
+    </div>
 
-  <!-- Order Summary -->
-  <div style="background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 4px;">
-    <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #222222;">Order Summary</h2>
-    <table style="width: 100%;">
-      <tr>
-        <td style="padding: 5px 0; width: 120px;"><strong>Order Number:</strong></td>
-        <td style="padding: 5px 0;">#${orderId}</td>
-      </tr>
-      <tr>
-        <td style="padding: 5px 0;"><strong>Order Date:</strong></td>
-        <td style="padding: 5px 0;">${new Date(createdAt).toDateString()}</td>
-      </tr>
-      <tr>
-        <td style="padding: 5px 0;"><strong>Name:</strong></td>
-        <td style="padding: 5px 0;">${firstName} ${lastName}</td>
-      </tr>
-      <tr>
-        <td style="padding: 5px 0;"><strong>Phone:</strong></td>
-        <td style="padding: 5px 0;">${phone}</td>
-      </tr>
-      ${
-        paymentinfo
-          ? `<tr>
-        <td style="padding: 5px 0;"><strong>Payment Method:</strong></td>
-        <td style="padding: 5px 0;">${paymentinfo.paymentId}</td>
-      </tr>`
-          : ""
-      }
+    <!-- Order Summary -->
+    <div style="background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 4px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #222222;">Order Summary</h2>
+      <table style="width: 100%;">
+        <tr>
+          <td style="padding: 5px 0; width: 120px;"><strong>Order Number:</strong></td>
+          <td style="padding: 5px 0;">#${orderId}</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0;"><strong>Order Date:</strong></td>
+          <td style="padding: 5px 0;">${new Date(createdAt).toDateString()}</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0;"><strong>Name:</strong></td>
+          <td style="padding: 5px 0;">${firstName} ${lastName}</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0;"><strong>Phone:</strong></td>
+          <td style="padding: 5px 0;">${phone}</td>
+        </tr>
+        ${
+          paymentinfo
+            ? `<tr>
+          <td style="padding: 5px 0;"><strong>Payment Method:</strong></td>
+          <td style="padding: 5px 0;">${paymentinfo.paymentId}</td>
+        </tr>`
+            : ""
+        }
+      </table>
+    </div>
+
+    <!-- Order Items -->
+    <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #222222;">Your Items</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dddddd;">Item</th>
+          <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dddddd;">Qty</th>
+          <th style="text-align: right; padding: 10px; border-bottom: 1px solid #dddddd;">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${products
+          .map(
+            (item) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.product.title}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.quantity}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${item.product.price}</td>
+        </tr>`
+          )
+          .join("")}
+        ${creation
+          .map(
+            (item) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">
+            ${Array.from(item.items)
+              .map(
+                (obj) => `
+              <div style="display:flex; align-items:center; margin-bottom:4px;">
+                <img src="http://craigphotoletters.com${
+                  obj.letter.images[obj.imageIndex]
+                }" alt="${
+                  obj.letter.letter
+                }" style="max-width: 50px; margin-right: 10px;">
+                <span>${
+                  obj.letter.images[obj.imageIndex]
+                    .split("/")
+                    .pop()
+                    .split(".")[0]
+                }</span>
+              </div>`
+              )
+              .join("")}
+          </td>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${
+            item.quantity
+          }</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${
+            item.items.length * item.quantity * 10
+          }</td>
+        </tr>`
+          )
+          .join("")}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="padding: 10px; text-align: right;"><strong>Subtotal:</strong></td>
+          <td style="padding: 10px; text-align: right;">$${amount}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding: 10px; text-align: right;"><strong>Shipping:</strong></td>
+          <td style="padding: 10px; text-align: right;">$${shippingPrice}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding: 10px; text-align: right;"><strong>Tax:</strong></td>
+          <td style="padding: 10px; text-align: right;">$${taxPrice}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding: 10px; text-align: right;"><strong>Total:</strong></td>
+          <td style="padding: 10px; text-align: right;">$${amountPaid}</td>
+        </tr>
+      </tfoot>
     </table>
-  </div>
 
-  <!-- Order Items -->
-  <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #222222;">Your Items</h3>
-  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-    <thead>
-      <tr style="background-color: #f2f2f2;">
-        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dddddd;">Item</th>
-        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dddddd;">Qty</th>
-        <th style="text-align: right; padding: 10px; border-bottom: 1px solid #dddddd;">Price</th>
-      </tr>
-    </thead>
-    <tbody>
-    ${products
-      .map((item) => {
-        return `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.product.title}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${item.quantity}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${item.product.price}</td>
-      </tr>`;
-      })
-      .join("")}
-    ${creation
-      .map((item) => {
-        return `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">
-        ${Array.from(item.items)
-          .map((obj) => {
-            return `<div><img src="http://craigphotoletters.com${
-              obj.letter.images[obj.imageIndex]
-            }" alt="${
-              obj.letter.letter
-            }" style="max-width: 50px; margin-right: 10px;"><span>${
-              obj.letter.images[obj.imageIndex].split("/").pop().split(".")[0]
-            }</span></div>`;
-          })
-          .join(" ")}
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">${
-          item.quantity
-        }</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eeeeee; text-align: right;">$${
-          item.items.length * item.quantity * 10
-        }</td>
-      </tr>`;
-      })
-      .join("")}
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="2" style="padding: 10px; text-align: right;"><strong>Subtotal:</strong></td>
-        <td style="padding: 10px; text-align: right;">$${amount}</td>
-      </tr>
-      <tr>
-        <td colspan="2" style="padding: 10px; text-align: right;"><strong>Shipping:</strong></td>
-        <td style="padding: 10px; text-align: right;">$${shippingPrice}</td>
-      </tr>
-      <tr>
-        <td colspan="2" style="padding: 10px; text-align: right;"><strong>Tax:</strong></td>
-        <td style="padding: 10px; text-align: right;">$${taxPrice}</td>
-      </tr>
-      <tr>
-        <td colspan="2" style="padding: 10px; text-align: right;"><strong>Total:</strong></td>
-        <td style="padding: 10px; text-align: right;">$${amountPaid}</td>
-      </tr>
-    </tfoot>
-  </table>
+    <!-- Shipping Info -->
+    <div style="margin-bottom: 20px;">
+      <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #222222;">Shipping Information</h3>
+      <p style="margin: 5px 0;">${deliveryFirstName} ${deliveryLastName}<br>
+      ${address}<br>
+      ${city}, ${state} ${zipCode}<br>
+      ${country}</p>
+    </div>
 
-  <!-- Shipping Info -->
-  <div style="margin-bottom: 20px;">
-    <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #222222;">Shipping Information</h3>
-    <p style="margin: 5px 0;">${deliveryFirstName} ${deliveryLastName}<br>
-    ${address}<br>
-    ${city}, ${state} ${zipCode}<br>
-    ${country}</p>
-  </div>
+    ${
+      giftMessage && giftMessage.trim() !== ""
+        ? `
+      <!-- Gift Message -->
+      <div style="margin: 20px 0; padding: 15px; background-color: #f0fff4; border-left: 4px solid #4CAF50; border-radius: 4px;">
+        <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #2e7d32;">🎁 Gift Message</h3>
+        <p style="margin: 0; font-style: italic; color: #333;">“${giftMessage}”</p>
+      </div>
+      `
+        : ""
+    }
 
-  <!-- Footer -->
-  <div style="padding: 20px 0; border-top: 1px solid #eeeeee; color: #777777; font-size: 14px;">
-    <p style="margin: 0 0 10px 0;">Need help? Contact us at <a href="mailto:support@yourcompany.com" style="color: #4CAF50;">support@yourcompany.com</a></p>
-    <p style="margin: 0;">© ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+    <!-- Footer -->
+    <div style="padding: 20px 0; border-top: 1px solid #eeeeee; color: #777777; font-size: 14px;">
+      <p style="margin: 0 0 10px 0;">Need help? Contact us at <a href="mailto:support@craigphotoletters.com" style="color: #4CAF50;">support@craigphotoletters.com</a></p>
+      <p style="margin: 0;">© ${new Date().getFullYear()} Craig Photo Letters. All rights reserved.</p>
+    </div>
   </div>
-</div>
-    `;
+  `;
+
   return { subject, html };
 };
 
