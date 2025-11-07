@@ -130,7 +130,7 @@ const generateOrderEmailBody = (order) => {
         </tr>
         <tr>
           <td colspan="2" style="padding: 10px; text-align: right;"><strong>Tax:</strong></td>
-          <td style="padding: 10px; text-align: right;">$${taxPrice}</td>
+          <td style="padding: 10px; text-align: right;">$${taxPrice.toFixed(2)}</td>
         </tr>
         <tr>
           <td colspan="2" style="padding: 10px; text-align: right;"><strong>Total:</strong></td>
